@@ -63,7 +63,7 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
     private List<SearchResult> beaconList = new ArrayList<>();
     private SearchRequest request;
     private int intYear, intDay, intHours, intMinutes, intMonth;
-    private String strYear, strDay, strHours, strMinutes, strMonth;
+    private String strYear, strDay, strHours, strMinutes, strMonth,time;
 
 
     @Override
@@ -84,9 +84,9 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
     @Override
     public void initView() {
         setSwipeBackEnable(false);
-//        scanDevice();
+        scanDevice();
 
-        Date date = TimeUtils.getNowTimeDate();
+
 
         Calendar c = Calendar.getInstance();
         intYear = c.get(Calendar.YEAR); // 获取当前年份
@@ -100,7 +100,7 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
         strDay = addZeroForNum(Integer.toHexString(intDay), 2);
         strHours = addZeroForNum(Integer.toHexString(intHours), 2);
         strMinutes = addZeroForNum(Integer.toHexString(intMinutes), 2);
-
+         time = "0E"+strYear+strMonth+strDay+strHours+strMinutes;
         BluetoothUtil.getClient().registerBluetoothStateListener(new BluetoothStateListener() {
             @Override
             public void onBluetoothStateChanged(boolean openOrClosed) {
@@ -218,25 +218,9 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
                 if (code == REQUEST_SUCCESS) {
                     ToastUtils.showShortToast("连接成功");
                     searchResult = item;
-
-
-//                    UUID = profile.getServices().get(0).getUUID();
                     registerConnectStatusListener();
                     notifyRsp();
-//                    write();
-//                    List<BleGattService> services = profile.getServices();
-
-//                    for (BleGattService service : services) {
-////                        items.add(new DetailItem(DetailItem.TYPE_SERVICE, service.getUUID(), null));
-//                        service.getUUID();
-//                        Logger.e("service.getUUID()  ==   "+ service.getUUID().toString());
-//                        List<BleGattCharacter> characters = service.getCharacters();
-//                        for (BleGattCharacter character : characters) {
-////                            items.add(new DetailItem(DetailItem.TYPE_CHARACTER, character.getUuid(), service.getUUID()));
-//                            Logger.e("character.getUuid() ==  "+ character.getUuid());
-//                        }
-//                    }
-
+                    write(stringToBytes(time));
                     startActivityIn(new Intent(ScanBluetoothActivity.this, MainActivity.class), ScanBluetoothActivity.this);
                 }
             }
