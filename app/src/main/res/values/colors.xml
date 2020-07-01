@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+
+    <!--页面背景的颜色-->
+    <color name="colorPageBg">#00000000</color>
+    <!--tab标签栏文字的颜色-->
+    <color name="colorTabText">#585858</color>
+    <color name="chapter_title_night">#292929</color>
+    <color name="white">#ffffffff</color>
+    <color name="color_EEEEEE">#EEEEEE</color>
+    <color name="color_2B2B2B">#2B2B2B</color>
+    <color name="color_FAFAFA">#FAFAFA</color>
+    <color name="color_212121">#212121</color>
+    <color name="color_535353">#535353</color>
+    <color name="translucent">#0fff</color>
+    <color name="color_ACAFB4">#ACAFB4</color>
+    <color name="color_F0F0F0">#F0F0F0</color>
+    <color name="color_00A0E9">#00A0E9</color>
+
+
+
+    <color name="dark">#803cbcb7</color>
+    <color name="light">#800de6e8</color>
+    <color name="green">#00FF00</color>
+    <color name="blue">#EE9A00</color>
+    <color name="red">#EE0000</color>
+
+    <color name="color_0E1D58">#0E1D58</color>
+
+    <integer-array name="gradient_arc_color">
+        <item>@color/green</item>
+        <item>@color/blue</item>
+        <item>@color/red</item>
+    </integer-array>
+
+
+
+</resources>
