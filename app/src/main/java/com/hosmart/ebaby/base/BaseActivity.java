@@ -225,58 +225,36 @@ public abstract class BaseActivity extends SwipeBackActivity {
         };
 
 
-//  十六进制的字符串转换成byte数组     
-//
-//    public static byte[]HexCommandtoByte(byte[] data) { 
-//
-//            if (data == null) { 
-//
-//                return null; 
-//
-//            } 
-//
-//            int nLength = data.length;  
-//
-//              
-//
-//            String strTemString = new String(data, 0, nLength); 
-//
-//            String[] strings = strTemString.split(" "); 
-//
-//            nLength = strings.length; 
-//
-//            data = new byte[nLength];            
-//
-//            for (int i = 0; i < nLength; i++) { 
-//
-//                if (strings[i].length() != 2) { 
-//
-//                     data[i] = 00; 
-//
-//                     continue; 
-//
-//                } 
-//
-//                try { 
-//
-//                     data[i] =(byte)Integer.parseInt(strings[i], 16); 
-//
-//                } catch (Exception e) { 
-//
-//                     data[i] = 00; 
-//
-//                     continue; 
-//
-//                } 
-//
-//            } 
-//
-//            return data; 
-//
-//         }
+    public static byte[] stringToBytes(String text) {
+        int len = text.length();
+        byte[] bytes = new byte[(len + 1) / 2];
+        for (int i = 0; i < len; i += 2) {
+            int size = Math.min(2, len - i);
+            String sub = text.substring(i, i + size);
+            bytes[i / 2] = (byte) Integer.parseInt(sub, 16);
+        }
+        return bytes;
+    }
+
+    public static String addZeroForNum(String str, int strLength) {
+        int strLen = str.length();
+        if (strLen < strLength) {
+            while (strLen < strLength) {
+                StringBuffer sb = new StringBuffer();
+                sb.append("0").append(str);//左补0
+//    sb.append(str).append("0");//右补0
+                str = sb.toString();
+                strLen = str.length();
+            }
+        }
+
+        return str;
+    }
 
 
-        public abstract int getLayoutId();
+
+
+    public abstract int getLayoutId();
 
         public abstract void attachView();
 

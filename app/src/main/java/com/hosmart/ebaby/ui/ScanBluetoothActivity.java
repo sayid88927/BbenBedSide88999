@@ -110,32 +110,7 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
 
     }
 
-    public static String addZeroForNum(String str, int strLength) {
-        int strLen = str.length();
-        if (strLen < strLength) {
-            while (strLen < strLength) {
-                StringBuffer sb = new StringBuffer();
-                sb.append("0").append(str);//左补0  
-//    sb.append(str).append("0");//右补0  
-                str = sb.toString();
-                strLen = str.length();
-            }
-        }
 
-        return str;
-    }
-
-
-    public static byte[] stringToBytes(String text) {
-        int len = text.length();
-        byte[] bytes = new byte[(len + 1) / 2];
-        for (int i = 0; i < len; i += 2) {
-            int size = Math.min(2, len - i);
-            String sub = text.substring(i, i + size);
-            bytes[i / 2] = (byte) Integer.parseInt(sub, 16);
-        }
-        return bytes;
-    }
 
     @OnClick({R.id.btu_again})
     public void onClick(View view) {

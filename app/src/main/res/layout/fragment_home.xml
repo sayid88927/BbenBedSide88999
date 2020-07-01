@@ -71,12 +71,13 @@
                         android:background="@drawable/brightness_down" />
 
                     <SeekBar
+                        android:id="@+id/sb_brightness"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_centerInParent="true"
                         android:layout_toLeftOf="@id/iv_moon_n"
                         android:layout_toRightOf="@+id/iv_moon_p"
-                        android:max="100"
+                        android:max="30"
                         android:paddingStart="15dp"
                         android:paddingEnd="15dp"
                         android:progressDrawable="@drawable/icon_progressbar_bg"
@@ -110,7 +111,7 @@
                         android:background="@drawable/volume_down" />
 
                     <SeekBar
-
+android:id="@+id/sb_volume"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_centerInParent="true"

@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.blankj.utilcode.utils.ToastUtils;
@@ -64,6 +65,12 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
     @BindView(R.id.btn_power)
     ImageView btnPower;
 
+    @BindView(R.id.sb_brightness)
+    SeekBar sbBrightness;
+
+    @BindView(R.id.sb_volume)
+    SeekBar sbVolume;
+
     private boolean powerStart = false;
 
     private CustomDialog checkDColorDialog;
@@ -94,6 +101,39 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
     public void initView() {
         setSwipeBackEnable(false);
         Permission.requestPermission(this);
+        sbBrightness.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                String byteDate = "04" + "aa" + addZeroForNum(Integer.toHexString(progress), 2);
+                write(stringToBytes(byteDate));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+
+        sbVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                String byteDate = "03" + "aa" + addZeroForNum(Integer.toHexString(progress), 2);
+                write(stringToBytes(byteDate));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+
+
 
     }
 
@@ -103,10 +143,10 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
             case R.id.btn_power:
                 if (!powerStart) {
                     write(Constant.powerOff);
-                    powerStart =true;
+                    powerStart = true;
                 } else {
                     write(Constant.powerOn);
-                    powerStart =false;
+                    powerStart = false;
                 }
                 break;
             case R.id.rl_setting:
@@ -203,6 +243,9 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
                 timerRunnable = BaseApplication.MAIN_EXECUTOR.scheduleWithFixedDelay(runnable, 0, 1, TimeUnit.SECONDS);
                 Seconds = 60;
                 hideDialog();
+                String byteDate = "08"+"aa"+ addZeroForNum(Integer.toHexString(Hours),2)+
+                        addZeroForNum(Integer.toHexString(Minute),2);
+                write(stringToBytes(byteDate));
             }
         });
         CustomNumberPicker npHours = (CustomNumberPicker) view.findViewById(R.id.np_hours);
@@ -370,7 +413,20 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
         colorPicker.subscribe(new ColorObserver() {
             @Override
             public void onColor(int color, boolean fromUser, boolean shouldPropagate) {
-                Logger.e(String.valueOf(color));
+                int red = (color & 0xff0000) >> 16;
+                int green = (color & 0x00ff00) >> 8;
+                int blue = (color & 0x0000ff);
+                Logger.e(String.valueOf(color)+"\n"+"red"+
+                        String.valueOf(red)  +"green"+
+                                String.valueOf(green)  +"blue"+
+                                String.valueOf(blue)
+                        );
+
+
+                        String byteData = "02"+"aa"+"250"+   addZeroForNum(Integer.toHexString(red),2)+ addZeroForNum(Integer.toHexString(green),2)+
+                                addZeroForNum(Integer.toHexString(blue),2);
+                Logger.e("byteData==   "+  byteData);
+                        write(stringToBytes(byteData));
             }
         });
         final CustomDialog dialog = new CustomDialog(this, view, R.style.ActivityDialogStyle);
