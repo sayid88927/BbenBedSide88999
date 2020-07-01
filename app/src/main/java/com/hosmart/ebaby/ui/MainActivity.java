@@ -433,6 +433,7 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
         Button btnCancel = view.findViewById(R.id.btn_cancel);
         Button btnOk = view.findViewById(R.id.btn_ok);
         btnCancel.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
                 if (dialog.isShowing()) {
