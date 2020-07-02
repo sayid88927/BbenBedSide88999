@@ -435,6 +435,7 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if (dialog.isShowing()) {
                     dialog.dismiss();
                 }
