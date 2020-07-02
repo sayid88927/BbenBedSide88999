@@ -6,6 +6,7 @@ import android.widget.ImageView;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.hosmart.ebaby.R;
+import com.hosmart.ebaby.base.Constant;
 import com.hosmart.ebaby.bean.CheckColorBean;
 
 import java.util.List;
@@ -21,10 +22,11 @@ public class CheckPepeatAdapter extends BaseQuickAdapter<CheckColorBean, BaseVie
     @Override
     protected void convert(BaseViewHolder helper, final CheckColorBean item) {
         ImageView ivCheckColor = helper.getView(R.id.iv_check_color);
-        if (item.isCheckStart())
-            ivCheckColor.setBackgroundResource(item.getSelectedDrawable());
-        else
-            ivCheckColor.setBackgroundResource(item.getUnSelectedDrawable());
+        if (item.isCheckStart()) {
+            ivCheckColor.setBackgroundResource(Constant.selectedRepeatDrawable[item.getId()]);
+        } else {
+            ivCheckColor.setBackgroundResource(Constant.unSelectedRepeatDrawable[item.getId()]);
+        }
 
         helper.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

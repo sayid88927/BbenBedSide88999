@@ -1,6 +1,7 @@
 package com.hosmart.ebaby.ui;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.GridLayoutManager;
@@ -16,6 +17,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.blankj.utilcode.utils.ToastUtils;
+
 import com.hosmart.ebaby.R;
 import com.hosmart.ebaby.base.BaseActivity;
 import com.hosmart.ebaby.base.BaseApplication;
@@ -25,6 +27,7 @@ import com.hosmart.ebaby.presenter.contract.activity.MainContract;
 import com.hosmart.ebaby.ui.apadter.CheckColorAdapter;
 import com.hosmart.ebaby.utils.Permission;
 import com.hosmart.ebaby.utils.PreferUtil;
+import com.hosmart.ebaby.view.ColorPickerView;
 import com.hosmart.ebaby.view.CustomNumberPicker;
 import com.hosmart.ebaby.view.dialog.CustomDialog;
 import com.orhanobut.logger.Logger;
@@ -39,8 +42,6 @@ import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import top.defaults.colorpicker.ColorObserver;
-import top.defaults.colorpicker.ColorPickerView;
 
 public class MainActivity extends BaseActivity implements MainContract.View, CheckColorAdapter.onItemClick {
 
@@ -63,7 +64,7 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
     TextView tvTimer;
 
     @BindView(R.id.btn_power)
-    ImageView btnPower;
+    ImageView ivPower;
 
     @BindView(R.id.sb_brightness)
     SeekBar sbBrightness;
@@ -72,14 +73,12 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
     SeekBar sbVolume;
 
     private boolean powerStart = false;
-
     private CustomDialog checkDColorDialog;
     private CheckColorAdapter adapter;
     private List<CheckColorBean> data = new ArrayList<>();
     private int Hours, Minute, Seconds;
     private String strHours, strMinutes, strSeconds;
     private ScheduledFuture timerRunnable;
-
 
     @Override
     public int getLayoutId() {
@@ -95,7 +94,6 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
     public void detachView() {
 
     }
-
 
     @Override
     public void initView() {
@@ -114,6 +112,7 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
+
             }
         });
 
@@ -133,8 +132,6 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
             }
         });
 
-
-
     }
 
     @OnClick({R.id.rl_setting, R.id.ll_light, R.id.ll_voice, R.id.ll_timer, R.id.ll_programs, R.id.btn_power})
@@ -144,9 +141,11 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
                 if (!powerStart) {
                     write(Constant.powerOff);
                     powerStart = true;
+                    ivPower.setBackground(getResources().getDrawable(R.drawable.btn_power_off));
                 } else {
                     write(Constant.powerOn);
                     powerStart = false;
+                    ivPower.setBackground(getResources().getDrawable(R.drawable.btn_power_on));
                 }
                 break;
             case R.id.rl_setting:
@@ -196,6 +195,7 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
             timeHandler.sendMessage(message);
         }
     };
+
     private Handler timeHandler = new Handler() {
 
         @Override
@@ -224,7 +224,6 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
         }
     };
 
-
     private void showCheckTimer() {
         hideDialog();
         View view = View.inflate(BaseApplication.getContext(), R.layout.dialog_check_timer, null);
@@ -243,8 +242,8 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
                 timerRunnable = BaseApplication.MAIN_EXECUTOR.scheduleWithFixedDelay(runnable, 0, 1, TimeUnit.SECONDS);
                 Seconds = 60;
                 hideDialog();
-                String byteDate = "08"+"aa"+ addZeroForNum(Integer.toHexString(Hours),2)+
-                        addZeroForNum(Integer.toHexString(Minute),2);
+                String byteDate = "08" + "aa" + addZeroForNum(Integer.toHexString(Hours), 2) +
+                        addZeroForNum(Integer.toHexString(Minute), 2);
                 write(stringToBytes(byteDate));
             }
         });
@@ -257,7 +256,6 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
             @Override
             public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
                 Hours = newVal;
-
             }
         });
         CustomNumberPicker npMinute = (CustomNumberPicker) view.findViewById(R.id.np_minute);
@@ -276,7 +274,6 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
         checkDColorDialog.setCancelable(true);
 
     }
-
 
     private void showCheckColor(int type) {
         hideDialog();
@@ -337,7 +334,7 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
         if (type == CheckColorAdapter.checkColor) {
             for (int i = 0; i < Constant.selectedColorDrawable.length; i++) {
                 CheckColorBean checkColorBean = new CheckColorBean();
-                checkColorBean.setId(i + 1);
+                checkColorBean.setId(i);
                 checkColorBean.setCheckStart(false);
                 checkColorBean.setSelectedDrawable(Constant.selectedColorDrawable[i]);
                 checkColorBean.setUnSelectedDrawable(Constant.unSelectedColorDrawable[i]);
@@ -347,7 +344,7 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
         } else if (type == CheckColorAdapter.checkVoice) {
             for (int i = 0; i < Constant.selectedVoiceDrawable.length; i++) {
                 CheckColorBean checkColorBean = new CheckColorBean();
-                checkColorBean.setId(i + 1);
+                checkColorBean.setId(i);
                 checkColorBean.setCheckStart(false);
                 checkColorBean.setSelectedDrawable(Constant.selectedVoiceDrawable[i]);
                 checkColorBean.setUnSelectedDrawable(Constant.unSelectedVoiceDrawable[i]);
@@ -356,7 +353,6 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
             PreferUtil.getInstance().setDataList(PreferUtil.CHECKVOICEBEAN, data);
         }
     }
-
 
     @Override
     protected void onDestroy() {
@@ -392,50 +388,66 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
 
     @Override
     public void onItemClick(CheckColorBean item) {
+        int selectedVoiceMusic = 0;
+        int[] wrbg = null;
         for (int i = 0; i < data.size(); i++) {
-            if (item.getId() == data.get(i).getId())
+            if (item.getId() == data.get(i).getId()) {
                 data.get(i).setCheckStart(true);
-            else
+                selectedVoiceMusic = Constant.selectedVoiceMusic[data.get(i).getId()];
+                wrbg = Constant.wRGB[data.get(i).getId()];
+            } else {
                 data.get(i).setCheckStart(false);
+            }
         }
         adapter.notifyDataSetChanged();
 
-        if (CheckColorAdapter.getType() == CheckColorAdapter.checkColor && item.getId() == 12) {
+        if (CheckColorAdapter.getType() == CheckColorAdapter.checkColor && item.getId() == data.size() - 1) {
             showPickerDialog();
+        } else if (CheckColorAdapter.getType() == CheckColorAdapter.checkVoice) {
+            String byteData = "0c" + "aa" + addZeroForNum(Integer.toHexString(selectedVoiceMusic), 2);
+            write(stringToBytes(byteData));
+        } else if (CheckColorAdapter.getType() == CheckColorAdapter.checkColor) {
+            String byteData = "02" + "aa" + addZeroForNum(Integer.toHexString(wrbg[0]), 2) +
+                    addZeroForNum(Integer.toHexString(wrbg[1]), 2) +
+                    addZeroForNum(Integer.toHexString(wrbg[2]), 2) +
+                    addZeroForNum(Integer.toHexString(wrbg[3]), 2);
+            write(stringToBytes(byteData));
         }
 
     }
 
     private void showPickerDialog() {
+
         View view = View.inflate(BaseApplication.getContext(), R.layout.dialog_picker, null);
         ColorPickerView colorPicker = (ColorPickerView) view.findViewById(R.id.colorPicker);
 
-        colorPicker.subscribe(new ColorObserver() {
+        colorPicker.setCornorCircleType(ColorPickerView.TYPE_FILL);
+
+        colorPicker.setDrawMagnifyBounds(false);
+        colorPicker.setDrawMagnifyCircle(false);
+        final int[] rgb = new int[4];
+        colorPicker.onCheckRgbClick(new ColorPickerView.onCheckRgbClick() {
             @Override
-            public void onColor(int color, boolean fromUser, boolean shouldPropagate) {
-                int red = (color & 0xff0000) >> 16;
-                int green = (color & 0x00ff00) >> 8;
-                int blue = (color & 0x0000ff);
-                Logger.e(String.valueOf(color)+"\n"+"red"+
-                        String.valueOf(red)  +"green"+
-                                String.valueOf(green)  +"blue"+
-                                String.valueOf(blue)
-                        );
-
-
-                        String byteData = "02"+"aa"+"250"+   addZeroForNum(Integer.toHexString(red),2)+ addZeroForNum(Integer.toHexString(green),2)+
-                                addZeroForNum(Integer.toHexString(blue),2);
-                Logger.e("byteData==   "+  byteData);
-                        write(stringToBytes(byteData));
+            public void onCheckRgbClick(int item) {
+                String byteData = "02" + "aa" + "00" + addZeroForNum(Integer.toHexString(Color.red(item)), 2) +
+                        addZeroForNum(Integer.toHexString(Color.green(item)), 2) +
+                        addZeroForNum(Integer.toHexString(Color.blue(item)), 2);
+                write(stringToBytes(byteData));
+                rgb[1] =00;
+                rgb[1] = Color.red(item);
+                rgb[2] = Color.green(item);
+                rgb[3] = Color.blue(item);
+                Constant.wRGB[10]= rgb;
             }
         });
+
+
         final CustomDialog dialog = new CustomDialog(this, view, R.style.ActivityDialogStyle);
         Button btnCancel = view.findViewById(R.id.btn_cancel);
         Button btnOk = view.findViewById(R.id.btn_ok);
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 if (dialog.isShowing()) {
                     dialog.dismiss();
                 }

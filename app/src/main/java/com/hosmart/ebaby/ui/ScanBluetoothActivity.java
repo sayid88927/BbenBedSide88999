@@ -63,7 +63,7 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
     private List<SearchResult> beaconList = new ArrayList<>();
     private SearchRequest request;
     private int intYear, intDay, intHours, intMinutes, intMonth;
-    private String strYear, strDay, strHours, strMinutes, strMonth, time;
+    private String byteDate;
 
 
     @Override
@@ -81,24 +81,25 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
 
     }
 
+
     @Override
     public void initView() {
         setSwipeBackEnable(false);
         scanDevice();
 
         Calendar c = Calendar.getInstance();
-        intYear = c.get(Calendar.YEAR); // 获取当前年份
-        intMonth = c.get(Calendar.MONTH) + 1;// 获取当前月份
-        intDay = c.get(Calendar.DAY_OF_MONTH);// 获取当日期
-        intHours = c.get(Calendar.HOUR_OF_DAY);//时
-        intMinutes = c.get(Calendar.MINUTE);//分
+        intYear = c.get(Calendar.YEAR);
+        intMonth = c.get(Calendar.MONTH) + 1;
+        intDay = c.get(Calendar.DAY_OF_MONTH);
+        intHours = c.get(Calendar.HOUR_OF_DAY);
+        intMinutes = c.get(Calendar.MINUTE);
 
-        strYear = addZeroForNum(Integer.toHexString(intYear), 2);
-        strMonth = addZeroForNum(Integer.toHexString(intMonth), 2);
-        strDay = addZeroForNum(Integer.toHexString(intDay), 2);
-        strHours = addZeroForNum(Integer.toHexString(intHours), 2);
-        strMinutes = addZeroForNum(Integer.toHexString(intMinutes), 2);
-        time = "0E" + strYear + strMonth + strDay + strHours + strMinutes;
+        byteDate = "0E" + addZeroForNum(Integer.toHexString(intYear), 2) +
+                addZeroForNum(Integer.toHexString(intMonth), 2) +
+                addZeroForNum(Integer.toHexString(intDay), 2) +
+                addZeroForNum(Integer.toHexString(intHours), 2) +
+                addZeroForNum(Integer.toHexString(intMinutes), 2);
+
         BluetoothUtil.getClient().registerBluetoothStateListener(new BluetoothStateListener() {
             @Override
             public void onBluetoothStateChanged(boolean openOrClosed) {
@@ -107,8 +108,6 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
         });
 
     }
-
-
 
     @OnClick({R.id.btu_again})
     public void onClick(View view) {
@@ -133,15 +132,11 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
         BluetoothUtil.getClient().search(request, new SearchResponse() {
             @Override
             public void onSearchStarted() {
-//                Logger.e("onSearchStarted");
-
                 beaconList.clear();
             }
 
             @Override
             public void onDeviceFounded(SearchResult device) {
-                Beacon beacon = new Beacon(device.scanRecord);
-//                Logger.e(String.format("beacon for %s\n%s \n %s", device.getAddress(), beacon.toString(), device.getName()));
                 if (device.getName().contains("HL-701")) {
                     if (!beaconList.contains(device)) {
                         beaconList.add(device);
@@ -152,7 +147,6 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
 
             @Override
             public void onSearchStopped() {
-//                Logger.e("onSearchStopped");
                 if (beaconList.size() <= 0) {
                     llAgain.setVisibility(View.VISIBLE);
                     rlScan.setVisibility(View.GONE);
@@ -169,7 +163,6 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
 
             @Override
             public void onSearchCanceled() {
-//                Logger.e("onSearchCanceled");
                 scanDevice();
             }
         });
@@ -177,7 +170,7 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
 
     @Override
     public void onItemClick(final SearchResult item) {
-        showLoadingDialog();
+        showLoadingDialog("Connecting....");
         BleConnectOptions options = new BleConnectOptions.Builder()
                 .setConnectRetry(3)
                 .setConnectTimeout(20000)
@@ -190,11 +183,11 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
             public void onResponse(int code, BleGattProfile profile) {
                 dismissLoadingDialog();
                 if (code == REQUEST_SUCCESS) {
-                    ToastUtils.showShortToast("连接成功");
+//                    ToastUtils.showShortToast("连接成功");
                     searchResult = item;
                     registerConnectStatusListener();
                     notifyRsp();
-                    write(stringToBytes(time));
+                    write(stringToBytes(byteDate));
                     startActivityIn(new Intent(ScanBluetoothActivity.this, MainActivity.class), ScanBluetoothActivity.this);
                 }
             }

@@ -21,8 +21,6 @@ import com.hosmart.ebaby.R;
 
 public class Constant {
 
-
-
     public static final int STATE_UNKNOWN = 0;
     public static final int STATE_LOADING = 1;
     public static final int STATE_ERROR = 2;
@@ -57,6 +55,12 @@ public class Constant {
             R.drawable.voice_10, R.drawable.voice_11, R.drawable.voice_12
     };
 
+    public static final int[] selectedVoiceMusic = {
+            41, 10, 11,
+            12, 13, 14,
+            15, 16, 17,
+            18, 19, 20
+    };
 
     public static final int[] selectedRepeatDrawable = {
             R.drawable.sunday_seected, R.drawable.monday_selected, R.drawable.tuesday_selected,
@@ -70,11 +74,17 @@ public class Constant {
             R.drawable.saturdday
     };
 
-    public static final byte[] powerOff =new byte[]{0x00,0x00} ; //开灯及声音指令
-    public static final byte[] powerOn =new byte[]{0x00,0x01} ; //开灯及声音指令
-//    public static final byte[] date =new byte[]{0x08,0xAA,2018,12,30,1-1-9};
+    public static final int wRGB[][]={{0,0,0,0},{255,0,0,0},{0,149, 76, 67},
+            {0,145, 86, 40},{0,154, 122, 19},{0,48, 118, 94},
+            {0,38, 84, 138},{0,13, 108, 131},{0,143, 93, 154},
+            {0,181, 81, 121},{0,0, 0, 0},{0,0, 0, 0},
+    };
 
 
+
+
+    public static final byte[] powerOff = new byte[]{0x00, 0x00}; //开灯及声音指令
+    public static final byte[] powerOn = new byte[]{0x00, 0x01}; //开灯及声音指令
 
     //生产环境
     public static final String API_BASE_URL = "http://172.20.1.5:82/";

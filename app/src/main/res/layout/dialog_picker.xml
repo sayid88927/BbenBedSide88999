@@ -17,15 +17,23 @@
             android:layout_gravity="center"
             android:layout_marginTop="30dp">
 
-            <top.defaults.colorpicker.ColorPickerView
+<!--            <top.defaults.colorpicker.ColorPickerView-->
+<!--                android:id="@+id/colorPicker"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:enableBrightness="false"-->
+<!--                app:enableAlpha="false"-->
+<!--                app:layout_constraintLeft_toLeftOf="parent"-->
+<!--                app:layout_constraintRight_toRightOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="parent"/>-->
+
+            <com.hosmart.ebaby.view.ColorPickerView
                 android:id="@+id/colorPicker"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:enableBrightness="false"
-                app:enableAlpha="false"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+                android:layout_width="match_parent"
+                android:layout_height="300dp" />
+
+
+
 
         </RelativeLayout>
 

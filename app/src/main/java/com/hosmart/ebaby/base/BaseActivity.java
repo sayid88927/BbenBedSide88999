@@ -109,10 +109,10 @@ public abstract class BaseActivity extends SwipeBackActivity {
     }
 
 
-    public void showLoadingDialog() {
+    public void showLoadingDialog(String tip) {
         dismissLoadingDialog();
         LoadingDialog.Builder builder = new LoadingDialog.Builder(this)
-                .setMessage("加载中...")
+                .setMessage(tip)
                 .setCancelable(true);
         loadingDialog = builder.create();
         loadingDialog.show();
@@ -175,7 +175,7 @@ public abstract class BaseActivity extends SwipeBackActivity {
             BluetoothUtil.getClient().registerConnectStatusListener(searchResult.getAddress(), mConnectStatusListener);
     }
 
-    public  void notifyRsp(){
+    public void notifyRsp() {
         BluetoothUtil.getClient().notify(Mac, serviceUUID, characterNotifyUUID, mNotifyRsp);
     }
 
@@ -187,7 +187,6 @@ public abstract class BaseActivity extends SwipeBackActivity {
             mConnected = (status == STATUS_CONNECTED);
         }
     };
-
 
     private final BleNotifyResponse mNotifyRsp = new BleNotifyResponse() {
         @Override
@@ -207,22 +206,46 @@ public abstract class BaseActivity extends SwipeBackActivity {
         }
     };
 
+    public void write(byte[] bytes) {
+        if (!BluetoothUtil.getClient().isBluetoothOpened()) {
+            ToastUtils.showShortToast("Please open on Bluetooth");
+        }
 
-        public void write(byte[] bytes) {
+//        else if (!mConnected) {
+//            ToastUtils.showShortToast("Please connect the device");
+//        }
+        else {
+            Logger.e("發送數據  ===   " + bytesToHexStr(bytes));
+
             BluetoothUtil.getClient().write(Mac, serviceUUID, characterUUID,
                     bytes, mWriteRsp);
         }
+    }
 
-        private final BleWriteResponse mWriteRsp = new BleWriteResponse() {
-            @Override
-            public void onResponse(int code) {
-                if (code == REQUEST_SUCCESS) {
-                    Logger.e("success");
-                } else {
-                    Logger.e("failed");
-                }
+    private final BleWriteResponse mWriteRsp = new BleWriteResponse() {
+        @Override
+        public void onResponse(int code) {
+            if (code == REQUEST_SUCCESS) {
+                Logger.e(" 發送數據  ===   success");
+            } else {
+                Logger.e("  發送數據  ===   failed");
             }
-        };
+        }
+    };
+
+
+    // byte[]转十六进制("BE B0 BC 92")
+    public String bytesToHexStr(byte[] bytes) {
+
+        String stmp;
+        StringBuilder sb = new StringBuilder("");
+        for (byte aByte : bytes) {
+            stmp = Integer.toHexString(aByte & 0xFF);
+            sb.append((stmp.length() == 1) ? "0" + stmp : stmp);
+            sb.append(" ");
+        }
+        return sb.toString().toUpperCase().trim();
+    }
 
 
     public static byte[] stringToBytes(String text) {
@@ -252,14 +275,12 @@ public abstract class BaseActivity extends SwipeBackActivity {
     }
 
 
-
-
     public abstract int getLayoutId();
 
-        public abstract void attachView();
+    public abstract void attachView();
 
-        public abstract void detachView();
+    public abstract void detachView();
 
-        public abstract void initView();
+    public abstract void initView();
 
-    }
+}

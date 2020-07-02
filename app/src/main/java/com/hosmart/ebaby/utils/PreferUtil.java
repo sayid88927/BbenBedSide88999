@@ -14,6 +14,7 @@ import android.content.SharedPreferences;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.hosmart.ebaby.base.BaseApplication;
+import com.hosmart.ebaby.bean.AlarmSettingBean;
 import com.hosmart.ebaby.bean.CheckColorBean;
 
 import java.util.ArrayList;
@@ -29,12 +30,20 @@ public final class PreferUtil {
     private static SharedPreferences mPrefer;
     private static final String APP_NAME = "com.hosmart.ebaby";
 
-    public static  final  String CHECKCOLORBEAN ="CheckColorBean";
-    public static  final  String CHECKVOICEBEAN ="CheckVoiceBean";
-    public static  final  String CHECKREPEATBEAN ="CheckRepeatBean";
+    public static final String CHECKCOLORBEAN = "CheckColorBean";
+    public static final String CHECKVOICEBEAN = "CheckVoiceBean";
+    public static final String CHECKREPEATBEAN = "CheckRepeatBean";
 
-    public static  final  String CHECKCOLORALARMBEAN ="CheckColorAlarmBean";
-    public static  final  String CHECKVOICEALARMBEAN ="CheckVoiceAlarmBean";
+    public static final String CHECKCOLORALARMBEAN = "CheckColorAlarmBean";
+    public static final String CHECKVOICEALARMBEAN = "CheckVoiceAlarmBean";
+
+    public static final String CHECKALARMSETTINGBEAN1 = "checkAlarmSettingBean1";
+    public static final String CHECKALARMSETTINGBEAN2 = "checkAlarmSettingBean2";
+    public static final String CHECKALARMSETTINGBEAN3 = "checkAlarmSettingBean3";
+
+    public static final String CHECKALARMSETTINGWEEKBEAN1 = "checkAlarmSettingWeekBean1";
+    public static final String CHECKALARMSETTINGWEEKBEAN2= "checkAlarmSettingWeekBean2";
+    public static final String CHECKALARMSETTINGWEEKBEAN3 = "checkAlarmSettingWeekBean3";
 
     private PreferUtil() {
     }
@@ -42,7 +51,7 @@ public final class PreferUtil {
     public static PreferUtil getInstance() {
         if (INSTANCE == null) {
             context = BaseApplication.getContext();
-            return   new PreferUtil();
+            return new PreferUtil();
         }
         return INSTANCE;
     }
@@ -56,10 +65,11 @@ public final class PreferUtil {
 
     /**
      * 保存List
+     *
      * @param tag
      * @param datalist
      */
-    public  void setDataList(String tag, List<CheckColorBean> datalist) {
+    public void setDataList(String tag, List<CheckColorBean> datalist) {
         if (null == datalist || datalist.size() <= 0)
             return;
         Gson gson = new Gson();
@@ -72,11 +82,12 @@ public final class PreferUtil {
 
     /**
      * 获取List
+     *
      * @param tag
      * @return
      */
-    public  List<CheckColorBean> getDataList(String tag) {
-        List<CheckColorBean> datalist=new ArrayList<>();
+    public List<CheckColorBean> getDataList(String tag) {
+        List<CheckColorBean> datalist = new ArrayList<>();
         String strJson = mPrefer.getString(tag, null);
         if (null == strJson) {
             return datalist;
@@ -88,8 +99,33 @@ public final class PreferUtil {
     }
 
 
+    /**
+     * 保存List
+     *
+     * @param tag
+     * @param datalist
+     */
+    public void setAlarmSrttingDataList(String tag, AlarmSettingBean datalist) {
+        Gson gson = new Gson();
+        mPrefer.edit().remove(tag).commit();
+        String strJson = gson.toJson(datalist);
+        mPrefer.edit().putString(tag, strJson).commit();
 
+    }
 
+    /**
+     * 获取List
+     *
+     * @param tag
+     * @return
+     */
+    public AlarmSettingBean getAlarmSettingDataList(String tag) {
+        AlarmSettingBean datalist;
+        String strJson = mPrefer.getString(tag, null);
+        Gson gson = new Gson();
+        datalist = gson.fromJson(strJson, AlarmSettingBean.class);
+        return datalist;
+    }
 
 
     public String getString(String key, String defValue) {

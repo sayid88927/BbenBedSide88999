@@ -97,9 +97,12 @@ dependencies {
     implementation 'com.google.zxing:core:3.3.0'
     implementation 'com.github.yhaolpz:FloatWindow:1.0.9'
 //    implementation 'com.inuker.bluetooth:library:1.4.0'
-    implementation project(path: ':colorpicker')
+//    implementation project(path: ':colorpicker')
     implementation project(path: ':library')
+    implementation project(path: ':colorpicker')
 
 //    implementation "com.github.duanhong169:colorpicker:1.1.6"
+
+//    implementation 'com.github.BlockWen:ColorPickerView:1.0.2'
 
 }
