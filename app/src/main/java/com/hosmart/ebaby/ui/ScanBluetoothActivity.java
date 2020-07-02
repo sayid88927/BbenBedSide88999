@@ -63,7 +63,7 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
     private List<SearchResult> beaconList = new ArrayList<>();
     private SearchRequest request;
     private int intYear, intDay, intHours, intMinutes, intMonth;
-    private String strYear, strDay, strHours, strMinutes, strMonth,time;
+    private String strYear, strDay, strHours, strMinutes, strMonth, time;
 
 
     @Override
@@ -86,8 +86,6 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
         setSwipeBackEnable(false);
         scanDevice();
 
-
-
         Calendar c = Calendar.getInstance();
         intYear = c.get(Calendar.YEAR); // 获取当前年份
         intMonth = c.get(Calendar.MONTH) + 1;// 获取当前月份
@@ -100,7 +98,7 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
         strDay = addZeroForNum(Integer.toHexString(intDay), 2);
         strHours = addZeroForNum(Integer.toHexString(intHours), 2);
         strMinutes = addZeroForNum(Integer.toHexString(intMinutes), 2);
-         time = "0E"+strYear+strMonth+strDay+strHours+strMinutes;
+        time = "0E" + strYear + strMonth + strDay + strHours + strMinutes;
         BluetoothUtil.getClient().registerBluetoothStateListener(new BluetoothStateListener() {
             @Override
             public void onBluetoothStateChanged(boolean openOrClosed) {
