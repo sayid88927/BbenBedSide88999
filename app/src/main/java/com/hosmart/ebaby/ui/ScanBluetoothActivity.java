@@ -134,6 +134,7 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
             @Override
             public void onSearchStarted() {
 //                Logger.e("onSearchStarted");
+
                 beaconList.clear();
             }
 
