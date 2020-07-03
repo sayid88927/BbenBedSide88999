@@ -19,6 +19,7 @@
             android:background="?android:attr/selectableItemBackground">
 
             <TextView
+                android:id="@+id/tv_done"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
@@ -60,7 +61,7 @@
             android:textSize="18sp" />
 
         <Switch
-            android:id="@+id/sw_turn_on"
+            android:id="@+id/sw_alarm1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -95,6 +96,7 @@
             android:textSize="18sp" />
 
         <Switch
+            android:id="@+id/sw_alarm2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
@@ -128,6 +130,7 @@
             android:textSize="18sp" />
 
         <Switch
+            android:id="@+id/sw_alarm3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"

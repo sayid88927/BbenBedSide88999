@@ -23,7 +23,6 @@ import com.hosmart.ebaby.base.BaseActivity;
 import com.hosmart.ebaby.base.BaseApplication;
 import com.hosmart.ebaby.base.Constant;
 import com.hosmart.ebaby.bean.CheckColorBean;
-import com.hosmart.ebaby.presenter.contract.activity.MainContract;
 import com.hosmart.ebaby.ui.apadter.CheckColorAdapter;
 import com.hosmart.ebaby.utils.Permission;
 import com.hosmart.ebaby.utils.PreferUtil;
@@ -43,7 +42,7 @@ import java.util.concurrent.TimeUnit;
 import butterknife.BindView;
 import butterknife.OnClick;
 
-public class MainActivity extends BaseActivity implements MainContract.View, CheckColorAdapter.onItemClick {
+public class MainActivity extends BaseActivity implements CheckColorAdapter.onItemClick, SeekBar.OnSeekBarChangeListener {
 
     @BindView(R.id.rl_setting)
     RelativeLayout rlSetting;
@@ -72,6 +71,12 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
     @BindView(R.id.sb_volume)
     SeekBar sbVolume;
 
+    @BindView(R.id.rl_half_circle)
+    RelativeLayout rlHalfCircle;
+
+    @BindView(R.id.iv_muisc)
+    ImageView ivMuisc;
+
     private boolean powerStart = false;
     private CustomDialog checkDColorDialog;
     private CheckColorAdapter adapter;
@@ -99,39 +104,22 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
     public void initView() {
         setSwipeBackEnable(false);
         Permission.requestPermission(this);
-        sbBrightness.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                String byteDate = "04" + "aa" + addZeroForNum(Integer.toHexString(progress), 2);
-                write(stringToBytes(byteDate));
+
+        sbBrightness.setOnSeekBarChangeListener(this);
+        sbVolume.setOnSeekBarChangeListener(this);
+
+        List<CheckColorBean> colorBean = PreferUtil.getInstance().getDataList(PreferUtil.CHECKCOLORBEAN);
+        for(int i =0;i<colorBean.size();i++){
+            if(colorBean.get(i).isCheckStart()){
+                rlHalfCircle.setBackgroundResource(Constant.halfCircle[colorBean.get(i).getId()]);
             }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
+        }
+        List<CheckColorBean> musicBean = PreferUtil.getInstance().getDataList(PreferUtil.CHECKVOICEBEAN);
+        for(int i =0;i<musicBean.size();i++){
+            if(musicBean.get(i).isCheckStart()){
+                ivMuisc.setBackgroundResource(Constant.unSelectedVoiceDrawable[musicBean.get(i).getId()]);
             }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        sbVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                String byteDate = "03" + "aa" + addZeroForNum(Integer.toHexString(progress), 2);
-                write(stringToBytes(byteDate));
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
-        });
-
+        }
     }
 
     @OnClick({R.id.rl_setting, R.id.ll_light, R.id.ll_voice, R.id.ll_timer, R.id.ll_programs, R.id.btn_power})
@@ -148,15 +136,18 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
                     ivPower.setBackground(getResources().getDrawable(R.drawable.btn_power_on));
                 }
                 break;
+
             case R.id.rl_setting:
 
                 break;
             case R.id.ll_light:
                 showCheckColor(CheckColorAdapter.checkColor);
                 break;
+
             case R.id.ll_voice:
                 showCheckColor(CheckColorAdapter.checkVoice);
                 break;
+
             case R.id.ll_timer:
                 showCheckTimer();
                 break;
@@ -307,6 +298,7 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
             @Override
             public void onClick(View v) {
                 if (CheckColorAdapter.getType() == CheckColorAdapter.checkColor) {
+
                     PreferUtil.getInstance().setDataList(PreferUtil.CHECKCOLORBEAN, data);
                     hideDialog();
                 } else if (CheckColorAdapter.getType() == CheckColorAdapter.checkVoice) {
@@ -382,11 +374,6 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
     }
 
     @Override
-    public void showError(String message) {
-
-    }
-
-    @Override
     public void onItemClick(CheckColorBean item) {
         int selectedVoiceMusic = 0;
         int[] wrbg = null;
@@ -395,12 +382,17 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
                 data.get(i).setCheckStart(true);
                 selectedVoiceMusic = Constant.selectedVoiceMusic[data.get(i).getId()];
                 wrbg = Constant.wRGB[data.get(i).getId()];
+                if(CheckColorAdapter.getType() == CheckColorAdapter.checkColor && item.getId() != data.size() - 1){
+                    rlHalfCircle.setBackgroundResource(Constant.halfCircle[data.get(i).getId()]);
+                }else  if(CheckColorAdapter.getType() == CheckColorAdapter.checkVoice){
+                    ivMuisc.setBackgroundResource(Constant.unSelectedVoiceDrawable[data.get(i).getId()]);
+                }
             } else {
                 data.get(i).setCheckStart(false);
             }
         }
-        adapter.notifyDataSetChanged();
 
+        adapter.notifyDataSetChanged();
         if (CheckColorAdapter.getType() == CheckColorAdapter.checkColor && item.getId() == data.size() - 1) {
             showPickerDialog();
         } else if (CheckColorAdapter.getType() == CheckColorAdapter.checkVoice) {
@@ -413,16 +405,13 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
                     addZeroForNum(Integer.toHexString(wrbg[3]), 2);
             write(stringToBytes(byteData));
         }
-
     }
 
     private void showPickerDialog() {
 
         View view = View.inflate(BaseApplication.getContext(), R.layout.dialog_picker, null);
         ColorPickerView colorPicker = (ColorPickerView) view.findViewById(R.id.colorPicker);
-
         colorPicker.setCornorCircleType(ColorPickerView.TYPE_FILL);
-
         colorPicker.setDrawMagnifyBounds(false);
         colorPicker.setDrawMagnifyCircle(false);
         final int[] rgb = new int[4];
@@ -433,14 +422,13 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
                         addZeroForNum(Integer.toHexString(Color.green(item)), 2) +
                         addZeroForNum(Integer.toHexString(Color.blue(item)), 2);
                 write(stringToBytes(byteData));
-                rgb[1] =00;
+                rgb[1] = 00;
                 rgb[1] = Color.red(item);
                 rgb[2] = Color.green(item);
                 rgb[3] = Color.blue(item);
-                Constant.wRGB[10]= rgb;
+                Constant.wRGB[10] = rgb;
             }
         });
-
 
         final CustomDialog dialog = new CustomDialog(this, view, R.style.ActivityDialogStyle);
         Button btnCancel = view.findViewById(R.id.btn_cancel);
@@ -465,6 +453,27 @@ public class MainActivity extends BaseActivity implements MainContract.View, Che
 
         dialog.show();
         dialog.setCancelable(true);
+
+    }
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        if (seekBar == sbBrightness) {
+            String byteDate = "04" + "aa" + addZeroForNum(Integer.toHexString(progress), 2);
+            write(stringToBytes(byteDate));
+        } else if (seekBar == sbVolume) {
+            String byteDate = "03" + "aa" + addZeroForNum(Integer.toHexString(progress), 2);
+            write(stringToBytes(byteDate));
+        }
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
 
     }
 

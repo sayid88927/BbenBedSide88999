@@ -122,9 +122,6 @@ public class CrashHandler
                 }
             }
         }).start();
-        // 跳转到崩溃提示Activity
-//        LogUtils.e(throwable.getMessage());
-//        Logger.t("TAG").e(throwable.getMessage());
         Intent intent = new Intent(context, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);

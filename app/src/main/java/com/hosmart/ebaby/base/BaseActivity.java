@@ -57,19 +57,13 @@ public abstract class BaseActivity extends SwipeBackActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         //取消状态栏
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
         setContentView(getLayoutId());
-
         bind = ButterKnife.bind(this);
-        //沉浸式状态栏
-//        StatusBarUtil.setColor(this, getResources().getColor(R.color.colorPrimaryDark), 10);
         attachView();
         initView();
-
         synchronized (mActivities) {
             mActivities.add(this);
         }

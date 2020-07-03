@@ -27,6 +27,13 @@ public class Constant {
     public static final int STATE_EMPTY = 3;
     public static final int STATE_SUCCESS = 4;
 
+    public static final int[] halfCircle = {
+            R.drawable.half_circle_01, R.drawable.half_circle_02, R.drawable.half_circle_03,
+            R.drawable.half_circle_04, R.drawable.half_circle_05, R.drawable.half_circle_06,
+            R.drawable.half_circle_07, R.drawable.half_circle_08, R.drawable.half_circle_09,
+            R.drawable.half_circle_10, R.drawable.half_circle_11
+    };
+
     public static final int[] selectedColorDrawable = {
             R.drawable.color_1_dis, R.drawable.color_2_dis, R.drawable.color_3_dis,
             R.drawable.color_4_dis, R.drawable.color_5_dis, R.drawable.color_6_dis,
@@ -74,22 +81,14 @@ public class Constant {
             R.drawable.saturdday
     };
 
-    public static final int wRGB[][]={{0,0,0,0},{255,0,0,0},{0,149, 76, 67},
-            {0,145, 86, 40},{0,154, 122, 19},{0,48, 118, 94},
-            {0,38, 84, 138},{0,13, 108, 131},{0,143, 93, 154},
-            {0,181, 81, 121},{0,0, 0, 0},{0,0, 0, 0},
+    public static final int wRGB[][] = {{0, 0, 0, 0}, {255, 0, 0, 0}, {0, 149, 76, 67},
+            {0, 145, 86, 40}, {0, 154, 122, 19}, {0, 48, 118, 94},
+            {0, 38, 84, 138}, {0, 13, 108, 131}, {0, 143, 93, 154},
+            {0, 181, 81, 121}, {0, 0, 0, 0}, {0, 0, 0, 0},
     };
-
-
-
 
     public static final byte[] powerOff = new byte[]{0x00, 0x00}; //开灯及声音指令
     public static final byte[] powerOn = new byte[]{0x00, 0x01}; //开灯及声音指令
 
-    //生产环境
-    public static final String API_BASE_URL = "http://172.20.1.5:82/";
-
-    //测试连接
-    public static final String TEST_LINK = "m.asmx/TestLink";
 
 }

@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.CursorAdapter;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
@@ -38,7 +39,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 
-public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAdapter.onRepeatItemClick, CheckColorAdapter.onItemClick {
+public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAdapter.onRepeatItemClick, CheckColorAdapter.onItemClick, CompoundButton.OnCheckedChangeListener {
 
     private int postion;
 
@@ -57,6 +58,9 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
     @BindView(R.id.tv_save)
     TextView tvSave;
 
+    @BindView(R.id.tv_cancel)
+    TextView tvCancel;
+
     @BindView(R.id.sw_turn_on)
     Switch swTurnOn;
 
@@ -68,15 +72,18 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
 
     private CustomDialog checkTimeDialog;
     private CheckPepeatAdapter adapter;
-    private List<CheckColorBean> data = new ArrayList<>();
+    private List<CheckColorBean> dataColorBean;
+    private List<CheckColorBean> dataMusicBean;
+    private List<CheckColorBean> dataWeekBean;
     private CheckColorAdapter checkColorAdapter;
-
 
     private AlarmSettingBean alarmSettingBean;
     private StringBuilder checkWeek = new StringBuilder("00000000");
     private int Hours, Minute;
-    private int[] rgb;
+    private int[] rgb = new int[]{-1, -1, -1, -1};
     private int music;
+
+    private String alarmOnly;
 
     @Override
     public int getLayoutId() {
@@ -113,28 +120,33 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
             alarmSettingBean = new AlarmSettingBean();
         }
 
+        swTurnOn.setOnCheckedChangeListener(this);
 
     }
 
     private void initAlarmSetting() {
-
         swTurnOn.setChecked(alarmSettingBean.isTurnOn());
         swTurnOff.setChecked(alarmSettingBean.isTurnOff());
         swOnly.setChecked(alarmSettingBean.isAlarmOnly());
         checkWeek = alarmSettingBean.getWeek();
-
+        Hours = alarmSettingBean.getHours();
+        Minute = alarmSettingBean.getMinutes();
+        music = alarmSettingBean.getMusic();
+        rgb = alarmSettingBean.getColors();
     }
 
-
     @RequiresApi(api = Build.VERSION_CODES.O)
-    @OnClick({R.id.rl_alarm_time, R.id.rl_repeat, R.id.ll_light, R.id.ll_sound, R.id.tv_save})
+    @OnClick({R.id.rl_alarm_time, R.id.rl_repeat, R.id.ll_light, R.id.ll_sound, R.id.tv_save, R.id.tv_cancel})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.rl_alarm_time:
                 showCheckTimer();
                 break;
+            case R.id.tv_cancel:
+                finish();
+                break;
             case R.id.rl_repeat:
-                showCheckRepeat();
+                showCheckWeek();
                 break;
             case R.id.ll_light:
                 showCheckColor(CheckColorAdapter.checkColor);
@@ -143,70 +155,78 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
                 showCheckColor(CheckColorAdapter.checkVoice);
                 break;
             case R.id.tv_save:
-                if (!swTurnOn.isChecked()) {
-                    ToastUtils.showShortToast("请先设置开启");
-                    break;
-                }
-                if (alarmSettingBean.getHours() == 0 && alarmSettingBean.getMinutes() == 0) {
-                    ToastUtils.showShortToast("请先设置时间");
-                    break;
-                }
-
                 switch (postion) {
                     case 1:
-                        data = PreferUtil.getInstance().getDataList(PreferUtil.CHECKALARMSETTINGWEEKBEAN1);
-                        if (data == null || data.size() <= 0) {
-                            ToastUtils.showShortToast("请先设置星期");
-                            break;
-                        } else {
-                            int count = 0;
-                            for (int i = 0; i < data.size(); i++) {
-                                if (!data.get(i).isCheckStart()) {
-                                    count++;
-                                }
-                            }
-                            if (count == 7) {
-                                ToastUtils.showShortToast("请先设置星期");
-                                break;
-                            }
-                        }
-
-
+                        setAlarmBean();
                         PreferUtil.getInstance().setAlarmSrttingDataList(PreferUtil.CHECKALARMSETTINGBEAN1, alarmSettingBean);
-                        String cWeek = alarmSettingBean.getWeek().toString();
-                        int i = Integer.parseUnsignedInt(cWeek, 2);
-                        String fd = addZeroForNum(Integer.toHexString(i), 2);
-
-//                        String byteDate = "05" + "aa" +
                         break;
                     case 2:
+                        setAlarmBean();
                         PreferUtil.getInstance().setAlarmSrttingDataList(PreferUtil.CHECKALARMSETTINGBEAN2, alarmSettingBean);
                         break;
                     case 3:
+                        setAlarmBean();
                         PreferUtil.getInstance().setAlarmSrttingDataList(PreferUtil.CHECKALARMSETTINGBEAN3, alarmSettingBean);
                         break;
                 }
-
-                alarmSettingBean.setTurnOff(swTurnOff.isChecked());
-                alarmSettingBean.setTurnOn(swTurnOn.isChecked());
-                alarmSettingBean.setAlarmOnly(swOnly.isChecked());
-                alarmSettingBean.setHours(Hours);
-                alarmSettingBean.setMinutes(Minute);
-                alarmSettingBean.setWeek(checkWeek);
-
-               finish();
-                break;
         }
     }
 
-    private void showCheckRepeat() {
-        hideDialog();
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void setAlarmBean() {
 
-        this.data.clear();
-       data =  PreferUtil.getInstance().getDataList(PreferUtil.CHECKALARMSETTINGWEEKBEAN1);
-       if(data==null || data.size()<=0){
-           initCheckRepeatData();
-       }
+        if (Hours == 0 && Minute == 0) {
+            ToastUtils.showShortToast("请先设置时间");
+        } else if (checkWeek.toString().equals("10000000")) {
+            ToastUtils.showShortToast("请先设置星期");
+        } else if (rgb[0] == -1 && rgb[1] == -1 && rgb[2] == -1 && rgb[3] == -1) {
+            ToastUtils.showShortToast("请先设置颜色");
+        } else if (music <= 0) {
+            ToastUtils.showShortToast("请先设置音乐");
+        } else {
+
+            if (alarmSettingBean.isAlarmOnly()) {
+                alarmOnly = "01";
+            } else {
+                alarmOnly = "02";
+            }
+
+            alarmSettingBean.setTurnOff(swTurnOff.isChecked());
+            alarmSettingBean.setTurnOn(swTurnOn.isChecked());
+            alarmSettingBean.setAlarmOnly(swOnly.isChecked());
+            alarmSettingBean.setHours(Hours);
+            alarmSettingBean.setMinutes(Minute);
+            alarmSettingBean.setWeek(checkWeek);
+            alarmSettingBean.setColors(rgb);
+            alarmSettingBean.setMusic(music);
+
+            alarmSettingBean.setWeekBean(dataWeekBean);
+            alarmSettingBean.setColorBean(dataColorBean);
+            alarmSettingBean.setMuiscBean(dataMusicBean);
+
+            int i = Integer.parseUnsignedInt(alarmSettingBean.getWeek().toString(), 2);
+            String wk = addZeroForNum(Integer.toHexString(i), 2);
+            String music = addZeroForNum(Integer.toHexString(alarmSettingBean.getMusic()), 2);
+            String Hours = addZeroForNum(Integer.toHexString(alarmSettingBean.getHours()), 2);
+            String Minutes = addZeroForNum(Integer.toHexString(alarmSettingBean.getMinutes()), 2);
+            String rgb = addZeroForNum(Integer.toHexString(alarmSettingBean.getColors()[0]), 2) +
+                    addZeroForNum(Integer.toHexString(alarmSettingBean.getColors()[1]), 2) +
+                    addZeroForNum(Integer.toHexString(alarmSettingBean.getColors()[2]), 2) +
+                    addZeroForNum(Integer.toHexString(alarmSettingBean.getColors()[3]), 2);
+
+            String byteDate = "05" + "aa" + wk + music + Hours + Minutes + rgb + alarmOnly;
+            Logger.e(byteDate);
+            write(stringToBytes(byteDate));
+            finish();
+        }
+    }
+
+    private void showCheckWeek() {
+        hideDialog();
+        dataWeekBean = alarmSettingBean.getWeekBean();
+        if (dataWeekBean == null || dataWeekBean.size() <= 0) {
+            initCheckRepeatData();
+        }
         View view = View.inflate(BaseApplication.getContext(), R.layout.dialog_repeat, null);
         Button btnCancel = view.findViewById(R.id.btn_cancel);
         Button btnOk = view.findViewById(R.id.btn_ok);
@@ -220,17 +240,13 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switch (postion){
-                    case 1:
-                        PreferUtil.getInstance().setDataList(PreferUtil.CHECKALARMSETTINGWEEKBEAN1,data);
-                        alarmSettingBean.setWeek(checkWeek);
-                        break;
-                    case 2:
-                        PreferUtil.getInstance().setDataList(PreferUtil.CHECKALARMSETTINGWEEKBEAN2,data);
-                        break;
-                    case 3:
-                        PreferUtil.getInstance().setDataList(PreferUtil.CHECKALARMSETTINGWEEKBEAN3,data);
-                        break;
+                for (int i = 0; i < dataWeekBean.size(); i++) {
+                    if (dataWeekBean.get(i).isCheckStart()) {
+                        checkWeek.setCharAt(i + 1, '1');
+                    } else {
+                        checkWeek.setCharAt(i + 1, '0');
+                    }
+                    adapter.notifyDataSetChanged();
                 }
                 hideDialog();
             }
@@ -238,7 +254,7 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
         RecyclerView rvCheckRepeat = (RecyclerView) view.findViewById(R.id.rv_check_repeat);
         LinearLayoutManager layoutManager = new LinearLayoutManager(AlarmSettingActivity.this, LinearLayoutManager.HORIZONTAL, false);
         rvCheckRepeat.setLayoutManager(layoutManager);
-        adapter = new CheckPepeatAdapter(data);
+        adapter = new CheckPepeatAdapter(dataWeekBean);
         rvCheckRepeat.setAdapter(adapter);
         adapter.onRepeatItemClick(AlarmSettingActivity.this);
 
@@ -250,16 +266,34 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
     }
 
     private void initCheckRepeatData() {
+        if (dataWeekBean == null)
+            dataWeekBean = new ArrayList<>();
+        else
+            dataWeekBean.clear();
         for (int i = 0; i < Constant.selectedRepeatDrawable.length; i++) {
             CheckColorBean checkColorBean = new CheckColorBean();
             checkColorBean.setId(i);
             checkColorBean.setCheckStart(false);
             checkColorBean.setSelectedDrawable(Constant.selectedRepeatDrawable[i]);
             checkColorBean.setUnSelectedDrawable(Constant.unSelectedRepeatDrawable[i]);
-            data.add(checkColorBean);
+            dataWeekBean.add(checkColorBean);
         }
-        PreferUtil.getInstance().setDataList(PreferUtil.CHECKREPEATBEAN, data);
     }
+
+    @Override
+    public void onRepeatItemClick(CheckColorBean item) {
+        for (int i = 0; i < dataWeekBean.size(); i++) {
+            if (item.getId() == dataWeekBean.get(i).getId()) {
+                if (item.isCheckStart()) {
+                    dataWeekBean.get(i).setCheckStart(false);
+                } else {
+                    dataWeekBean.get(i).setCheckStart(true);
+                }
+                adapter.notifyDataSetChanged();
+            }
+        }
+    }
+
 
     private void showCheckTimer() {
         hideDialog();
@@ -275,14 +309,13 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                alarmSettingBean.setHours(Hours);
-                alarmSettingBean.setMinutes(Minute);
                 hideDialog();
             }
         });
         CustomNumberPicker npHours = (CustomNumberPicker) view.findViewById(R.id.np_hours);
         npHours.setMinValue(0);
-        npHours.setMaxValue(24);
+        npHours.setMaxValue(23);
+        npHours.setValue(alarmSettingBean.getHours());
         npHours.setNumberPickerDividerColor(npHours);
         npHours.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
         CustomNumberPicker npMinute = (CustomNumberPicker) view.findViewById(R.id.np_minute);
@@ -294,7 +327,8 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
         });
 
         npMinute.setMinValue(0);
-        npMinute.setMaxValue(60);
+        npMinute.setMaxValue(59);
+        npMinute.setValue(alarmSettingBean.getMinutes());
         npMinute.setNumberPickerDividerColor(npMinute);
         npMinute.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
         npMinute.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
@@ -318,21 +352,24 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
 
     private void showCheckColor(int type) {
         hideDialog();
-        this.data.clear();
-        if (type == CheckColorAdapter.checkColor) {
-            data = PreferUtil.getInstance().getDataList(PreferUtil.CHECKCOLORALARMBEAN);
-            if (data == null || data.size() <= 0)
-                initCheckColorData(type);
-        } else if (type == CheckColorAdapter.checkVoice) {
-            data = PreferUtil.getInstance().getDataList(PreferUtil.CHECKVOICEALARMBEAN);
-            if (data == null || data.size() <= 0)
-                initCheckColorData(type);
-        }
-
         View view = View.inflate(BaseApplication.getContext(), R.layout.dialog_check_color, null);
         RecyclerView rvCheckColor = view.findViewById(R.id.rv_check_color);
         rvCheckColor.setLayoutManager(new GridLayoutManager(AlarmSettingActivity.this, 3));
-        checkColorAdapter = new CheckColorAdapter(data, type);
+
+        if (type == CheckColorAdapter.checkColor) {
+            dataColorBean = alarmSettingBean.getColorBean();
+            if (dataColorBean == null || dataColorBean.size() <= 0) {
+                initCheckColorData(type);
+            }
+            checkColorAdapter = new CheckColorAdapter(dataColorBean, type);
+        } else if (type == CheckColorAdapter.checkVoice) {
+            dataMusicBean = alarmSettingBean.getMuiscBean();
+            if (dataMusicBean == null || dataMusicBean.size() <= 0) {
+                initCheckColorData(type);
+            }
+            checkColorAdapter = new CheckColorAdapter(dataMusicBean, type);
+        }
+
         rvCheckColor.setAdapter(checkColorAdapter);
         checkColorAdapter.onItemClick(AlarmSettingActivity.this);
 
@@ -344,17 +381,14 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
                 hideDialog();
             }
         });
+
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (CheckColorAdapter.getType() == CheckColorAdapter.checkColor) {
-                    PreferUtil.getInstance().setDataList(PreferUtil.CHECKCOLORALARMBEAN, data);
                     hideDialog();
-                    alarmSettingBean.setColors(rgb);
                 } else if (CheckColorAdapter.getType() == CheckColorAdapter.checkVoice) {
-                    PreferUtil.getInstance().setDataList(PreferUtil.CHECKVOICEALARMBEAN, data);
                     hideDialog();
-                    alarmSettingBean.setMusic(music);
                 }
             }
         });
@@ -366,49 +400,63 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
     }
 
     private void initCheckColorData(int type) {
-        this.data.clear();
         if (type == CheckColorAdapter.checkColor) {
+            if (dataColorBean == null) {
+                dataColorBean = new ArrayList<>();
+            } else {
+                dataColorBean.clear();
+            }
             for (int i = 0; i < Constant.selectedColorDrawable.length; i++) {
                 CheckColorBean checkColorBean = new CheckColorBean();
                 checkColorBean.setId(i);
                 checkColorBean.setCheckStart(false);
                 checkColorBean.setSelectedDrawable(Constant.selectedColorDrawable[i]);
                 checkColorBean.setUnSelectedDrawable(Constant.unSelectedColorDrawable[i]);
-                data.add(checkColorBean);
+                dataColorBean.add(checkColorBean);
             }
-            PreferUtil.getInstance().setDataList(PreferUtil.CHECKCOLORALARMBEAN, data);
         } else if (type == CheckColorAdapter.checkVoice) {
+            if (dataMusicBean == null) {
+                dataMusicBean = new ArrayList<>();
+            } else {
+                dataMusicBean.clear();
+            }
             for (int i = 0; i < Constant.selectedVoiceDrawable.length; i++) {
                 CheckColorBean checkColorBean = new CheckColorBean();
                 checkColorBean.setId(i);
                 checkColorBean.setCheckStart(false);
                 checkColorBean.setSelectedDrawable(Constant.selectedVoiceDrawable[i]);
                 checkColorBean.setUnSelectedDrawable(Constant.unSelectedVoiceDrawable[i]);
-                data.add(checkColorBean);
+                dataMusicBean.add(checkColorBean);
             }
-            PreferUtil.getInstance().setDataList(PreferUtil.CHECKVOICEALARMBEAN, data);
         }
     }
 
     @Override
     public void onItemClick(CheckColorBean item) {
-        for (int i = 0; i < data.size(); i++) {
-            if (item.getId() == data.get(i).getId()) {
-                data.get(i).setCheckStart(true);
-                if (CheckColorAdapter.getType() == CheckColorAdapter.checkColor) {
-                    rgb = Constant.wRGB[data.get(i).getId()];
-                } else {
-                    music = Constant.selectedVoiceMusic[data.get(i).getId()];
+        if (CheckColorAdapter.getType() == CheckColorAdapter.checkColor) {
+            if (item.getId() == dataColorBean.size() - 1) {
+                showPickerDialog();
+                dataColorBean.get(dataColorBean.size() - 2).setCheckStart(true);
+            } else
+                for (int i = 0; i < dataColorBean.size(); i++) {
+                    if (item.getId() == dataColorBean.get(i).getId()) {
+                        dataColorBean.get(i).setCheckStart(true);
+                        rgb = Constant.wRGB[dataColorBean.get(i).getId()];
+                    } else {
+                        dataColorBean.get(i).setCheckStart(false);
+                    }
                 }
-            } else {
-                data.get(i).setCheckStart(false);
+        } else if (CheckColorAdapter.getType() == CheckColorAdapter.checkVoice) {
+            for (int i = 0; i < dataMusicBean.size(); i++) {
+                if (item.getId() == dataMusicBean.get(i).getId()) {
+                    dataMusicBean.get(i).setCheckStart(true);
+                    music = Constant.selectedVoiceMusic[dataMusicBean.get(i).getId()];
+                } else {
+                    dataMusicBean.get(i).setCheckStart(false);
+                }
             }
         }
         checkColorAdapter.notifyDataSetChanged();
-
-        if (CheckColorAdapter.getType() == CheckColorAdapter.checkColor && item.getId() == data.size() - 1) {
-            showPickerDialog();
-        }
     }
 
     private void showPickerDialog() {
@@ -418,7 +466,7 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
         colorPicker.setCornorCircleType(ColorPickerView.TYPE_FILL);
         colorPicker.setDrawMagnifyBounds(false);
         colorPicker.setDrawMagnifyCircle(false);
-        rgb = new int[4];
+
         colorPicker.onCheckRgbClick(new ColorPickerView.onCheckRgbClick() {
             @Override
             public void onCheckRgbClick(int item) {
@@ -451,29 +499,16 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
                 }
             }
         });
-
         dialog.show();
         dialog.setCancelable(true);
-
     }
 
     @Override
-    public void onRepeatItemClick(CheckColorBean item) {
-
-        for (int i = 0; i < data.size(); i++) {
-            if (item.getId() == data.get(i).getId()) {
-                if (item.isCheckStart()) {
-                    data.get(i).setCheckStart(false);
-                    checkWeek.setCharAt(i + 1, '0');
-                } else {
-                    checkWeek.setCharAt(i + 1, '1');
-                    data.get(i).setCheckStart(true);
-                }
-                adapter.notifyDataSetChanged();
-                alarmSettingBean.setWeek(checkWeek);
-
-            }
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if (isChecked) {
+            checkWeek.setCharAt(0, '1');
+        } else {
+            checkWeek.setCharAt(0, '0');
         }
-
     }
 }

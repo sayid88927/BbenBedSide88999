@@ -34,16 +34,10 @@ public final class PreferUtil {
     public static final String CHECKVOICEBEAN = "CheckVoiceBean";
     public static final String CHECKREPEATBEAN = "CheckRepeatBean";
 
-    public static final String CHECKCOLORALARMBEAN = "CheckColorAlarmBean";
-    public static final String CHECKVOICEALARMBEAN = "CheckVoiceAlarmBean";
-
     public static final String CHECKALARMSETTINGBEAN1 = "checkAlarmSettingBean1";
     public static final String CHECKALARMSETTINGBEAN2 = "checkAlarmSettingBean2";
     public static final String CHECKALARMSETTINGBEAN3 = "checkAlarmSettingBean3";
 
-    public static final String CHECKALARMSETTINGWEEKBEAN1 = "checkAlarmSettingWeekBean1";
-    public static final String CHECKALARMSETTINGWEEKBEAN2= "checkAlarmSettingWeekBean2";
-    public static final String CHECKALARMSETTINGWEEKBEAN3 = "checkAlarmSettingWeekBean3";
 
     private PreferUtil() {
     }

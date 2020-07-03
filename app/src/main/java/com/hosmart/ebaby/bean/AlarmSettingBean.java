@@ -1,5 +1,7 @@
 package com.hosmart.ebaby.bean;
 
+import java.util.List;
+
 public class AlarmSettingBean {
 
 
@@ -14,6 +16,33 @@ public class AlarmSettingBean {
     private boolean TurnOff;
     private boolean alarmOnly;
 
+    private List<CheckColorBean> colorBean;
+    private  List<CheckColorBean> muiscBean;
+    private  List<CheckColorBean> weekBean;
+
+    public List<CheckColorBean> getWeekBean() {
+        return weekBean;
+    }
+
+    public void setWeekBean(List<CheckColorBean> weekBean) {
+        this.weekBean = weekBean;
+    }
+
+    public List<CheckColorBean> getColorBean() {
+        return colorBean;
+    }
+
+    public void setColorBean(List<CheckColorBean> colorBean) {
+        this.colorBean = colorBean;
+    }
+
+    public List<CheckColorBean> getMuiscBean() {
+        return muiscBean;
+    }
+
+    public void setMuiscBean(List<CheckColorBean> muiscBean) {
+        this.muiscBean = muiscBean;
+    }
 
     public boolean isAlarmOnly() {
         return alarmOnly;
