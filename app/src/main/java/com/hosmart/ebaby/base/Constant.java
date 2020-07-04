@@ -75,6 +75,11 @@ public class Constant {
             R.drawable.saturday_selected
     };
 
+    public static final String[] selectedWeekString = {
+            "Su", "M", "Tu", "W", "Th", "F", "Sa"
+    };
+
+
     public static final int[] unSelectedRepeatDrawable = {
             R.drawable.sunday, R.drawable.monday, R.drawable.tuesday,
             R.drawable.wednesday, R.drawable.thursday, R.drawable.friday,
@@ -84,7 +89,7 @@ public class Constant {
     public static final int wRGB[][] = {{0, 0, 0, 0}, {255, 0, 0, 0}, {0, 149, 76, 67},
             {0, 145, 86, 40}, {0, 154, 122, 19}, {0, 48, 118, 94},
             {0, 38, 84, 138}, {0, 13, 108, 131}, {0, 143, 93, 154},
-            {0, 181, 81, 121}, {0, 0, 0, 0}, {0, 0, 0, 0},
+            {0, 181, 81, 121}, {255, 0, 0, 0}, {0, 0, 0, 0},
     };
 
     public static final byte[] powerOff = new byte[]{0x00, 0x00}; //开灯及声音指令

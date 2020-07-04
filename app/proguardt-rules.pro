@@ -110,14 +110,14 @@ java.lang.Object readResolve();
     public static *** e(...);
 }
 
--keep class com.jzr.bedside.bean.**{*;}
--dontwarn com.jzr.bedside.bean.**
+-keep class com.hosmart.ebaby.bean.**{*;}
+-dontwarn com.hosmart.ebaby.bean.**
 
--keep class com.jzr.bedside.base.**{*;}
--dontwarn com.jzr.bedside.base.**
+-keep class com.hosmart.ebaby.base.**{*;}
+-dontwarn com.hosmart.ebaby.base.**
 
--keep class com.jzr.bedside.view.**{*;}
--dontwarn com.jzr.bedside.view.**
+-keep class com.hosmart.ebaby.view.**{*;}
+-dontwarn com.hosmart.ebaby.view.**
 
 -keep class com.jzr.netty.common.**{*;}
 -dontwarn com.jzr.netty.common.**

@@ -7,11 +7,13 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.WindowManager;
+import android.view.animation.ScaleAnimation;
 import android.widget.Toast;
 
 import com.blankj.utilcode.utils.ToastUtils;
 import com.hosmart.ebaby.R;
 import com.hosmart.ebaby.ui.MainActivity;
+import com.hosmart.ebaby.ui.ScanBluetoothActivity;
 import com.hosmart.ebaby.utils.BluetoothUtil;
 import com.hosmart.ebaby.view.SwipeBackActivity.SwipeBackActivity;
 import com.hosmart.ebaby.view.SwipeBackActivity.SwipeBackLayout;
@@ -19,6 +21,7 @@ import com.hosmart.ebaby.view.dialog.CustomDialog;
 import com.hosmart.ebaby.view.dialog.LoadingDialog;
 import com.inuker.bluetooth.library.connect.listener.BleConnectStatusListener;
 import com.inuker.bluetooth.library.connect.response.BleNotifyResponse;
+import com.inuker.bluetooth.library.connect.response.BleReadResponse;
 import com.inuker.bluetooth.library.connect.response.BleWriteResponse;
 import com.inuker.bluetooth.library.search.SearchResult;
 import com.inuker.bluetooth.library.utils.BluetoothLog;
@@ -28,6 +31,7 @@ import com.orhanobut.logger.Logger;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -45,21 +49,23 @@ public abstract class BaseActivity extends SwipeBackActivity {
     private Unbinder bind;
     private LoadingDialog loadingDialog;
     public static SearchResult searchResult = null;
+    public static List<SearchResult> BasebeaconList = new ArrayList<>();
 
     private boolean mConnected;
     public static java.util.UUID characterUUID = java.util.UUID.fromString("0000ae01-0000-1000-8000-00805f9b34fb");
-    public static java.util.UUID characterNotifyUUID = java.util.UUID.fromString("0000ae02-0000-1000-8000-00805f9b34fb");
+    public static java.util.UUID repCharacterUUID = java.util.UUID.fromString("00002a00-0000-1000-8000-00805f9b34fb");
 
     public static UUID serviceUUID = UUID.fromString("0000ae00-0000-1000-8000-00805f9b34fb");
-    public static String Mac;
+    public static UUID repServiceUUID = UUID.fromString("00001800-0000-1000-8000-00805f9b34fb");
 
+    public static String Mac;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //取消状态栏
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+//                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(getLayoutId());
         bind = ButterKnife.bind(this);
         attachView();
@@ -170,7 +176,7 @@ public abstract class BaseActivity extends SwipeBackActivity {
     }
 
     public void notifyRsp() {
-        BluetoothUtil.getClient().notify(Mac, serviceUUID, characterNotifyUUID, mNotifyRsp);
+        BluetoothUtil.getClient().read(Mac, repServiceUUID, repCharacterUUID, mReadRsp);
     }
 
     private final BleConnectStatusListener mConnectStatusListener = new BleConnectStatusListener() {
@@ -179,23 +185,21 @@ public abstract class BaseActivity extends SwipeBackActivity {
             BluetoothLog.v(String.format("DeviceDetailActivity onConnectStatusChanged %d in %s",
                     status, Thread.currentThread().getName()));
             mConnected = (status == STATUS_CONNECTED);
+            Logger.e("mConnected  ==  "+String.valueOf(mConnected));
+            if(!mConnected){
+                startActivityIn(new Intent(BaseActivity.this, ScanBluetoothActivity.class),BaseActivity.this);
+
+            }
         }
     };
 
-    private final BleNotifyResponse mNotifyRsp = new BleNotifyResponse() {
+    private final BleReadResponse mReadRsp = new BleReadResponse() {
         @Override
-        public void onResponse(int code) {
+        public void onResponse(int code, byte[] data) {
             if (code == REQUEST_SUCCESS) {
-                Logger.e("success");
+                Logger.e(ByteUtils.byteToString(data));
             } else {
                 Logger.e("failed");
-            }
-        }
-
-        @Override
-        public void onNotify(UUID service, UUID character, byte[] value) {
-            if (service.equals(serviceUUID) && character.equals(characterUUID)) {
-                Logger.e(String.format("%s", ByteUtils.byteToString(value)));
             }
         }
     };
@@ -203,14 +207,8 @@ public abstract class BaseActivity extends SwipeBackActivity {
     public void write(byte[] bytes) {
         if (!BluetoothUtil.getClient().isBluetoothOpened()) {
             ToastUtils.showShortToast("Please open on Bluetooth");
-        }
-
-//        else if (!mConnected) {
-//            ToastUtils.showShortToast("Please connect the device");
-//        }
-        else {
+        } else {
             Logger.e("發送數據  ===   " + bytesToHexStr(bytes));
-
             BluetoothUtil.getClient().write(Mac, serviceUUID, characterUUID,
                     bytes, mWriteRsp);
         }

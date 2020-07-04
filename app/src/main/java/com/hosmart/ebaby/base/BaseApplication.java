@@ -35,7 +35,7 @@ public class BaseApplication extends Application {
         initLogger();
         Utils.init(this);
         PreferUtil.getInstance().init(this);
-        CrashHandler.getInstance(this).init();
+     //   CrashHandler.getInstance(this).init();
         instance = this;
     }
 

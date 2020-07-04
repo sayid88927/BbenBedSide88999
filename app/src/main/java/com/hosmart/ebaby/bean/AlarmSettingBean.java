@@ -4,7 +4,6 @@ import java.util.List;
 
 public class AlarmSettingBean {
 
-
     private int id;
     private  int hours;
     private  int minutes;

@@ -37,7 +37,9 @@ public final class PreferUtil {
     public static final String CHECKALARMSETTINGBEAN1 = "checkAlarmSettingBean1";
     public static final String CHECKALARMSETTINGBEAN2 = "checkAlarmSettingBean2";
     public static final String CHECKALARMSETTINGBEAN3 = "checkAlarmSettingBean3";
-
+    public  static  final  String ISALARMOFF1 ="isAlarmOff1";
+    public  static  final  String ISALARMOFF2 ="isAlarmOff2";
+    public  static  final  String ISALARMOFF3 ="isAlarmOff3";
 
     private PreferUtil() {
     }
@@ -121,6 +123,26 @@ public final class PreferUtil {
         return datalist;
     }
 
+    public  int getIsAlarmOff1(){
+        return mPrefer.getInt(ISALARMOFF1, -1);
+    }
+    public  void setIsAlarmOff1(int tag){  // 0 关闭
+        putInt(ISALARMOFF1,tag);
+    }
+
+    public  int getIsAlarmOff2(){
+        return mPrefer.getInt(ISALARMOFF2, -1);
+    }
+    public  void setIsAlarmOff2(int tag){  // 0 关闭
+        putInt(ISALARMOFF2,tag);
+    }
+
+    public  int getIsAlarmOff3(){
+        return mPrefer.getInt(ISALARMOFF3, -1);
+    }
+    public  void setIsAlarmOff3(int tag){  // 0 关闭
+        putInt(ISALARMOFF3,tag);
+    }
 
     public String getString(String key, String defValue) {
         return mPrefer.getString(key, defValue);

@@ -29,26 +29,27 @@
                 android:background="@drawable/icon_stars" />
 
             <RelativeLayout
-                android:id="@+id/rl_top"
+                android:id="@+id/rl_half_circle"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                android:background="@drawable/half_circle_11">
+                android:background="@drawable/half_circle_01">
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:id="@+id/iv_muisc"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="60dp"
-                    android:background="@drawable/icon_moon" />
+                    android:background="@drawable/voice_1" />
             </RelativeLayout>
 
         </RelativeLayout>
 
         <LinearLayout
-            android:gravity="bottom"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="3">
+            android:layout_weight="3"
+            android:gravity="bottom">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -157,6 +158,17 @@
                         android:textColor="@color/white"
                         android:textSize="18sp" />
 
+                    <TextView
+                        android:id="@+id/tv_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_margin="10dp"
+                        android:text=""
+                        android:textColor="@color/white"
+                        android:textSize="16sp" />
+
                 </RelativeLayout>
 
                 <View
@@ -166,10 +178,10 @@
 
                 <RelativeLayout
                     android:id="@+id/rl_repeat"
-                    android:background="@drawable/ripple"
-                    android:clickable="true"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp">
+                    android:layout_height="40dp"
+                    android:background="@drawable/ripple"
+                    android:clickable="true">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -179,6 +191,17 @@
                         android:text="Repeat"
                         android:textColor="@color/white"
                         android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/tv_week"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_margin="10dp"
+                        android:text=""
+                        android:textColor="@color/white"
+                        android:textSize="16sp" />
 
                 </RelativeLayout>
 
@@ -229,9 +252,9 @@
                     android:background="@color/white" />
 
                 <LinearLayout
-                    android:background="@color/color_0E1D58"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@color/color_0E1D58"
                     android:orientation="horizontal"
                     android:weightSum="2">
 
@@ -294,28 +317,6 @@
 
 
     </LinearLayout>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 </RelativeLayout>

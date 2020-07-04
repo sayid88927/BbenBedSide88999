@@ -123,7 +123,7 @@
                 android:layout_weight="1"
                 android:background="@drawable/ripple"
                 android:clickable="true"
-                android:text="ok" />
+                android:text="DONE" />
 
 
         </LinearLayout>

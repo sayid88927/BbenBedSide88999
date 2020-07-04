@@ -83,19 +83,6 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
         setSwipeBackEnable(false);
         scanDevice();
 
-        Calendar c = Calendar.getInstance();
-        intYear = c.get(Calendar.YEAR);
-        intMonth = c.get(Calendar.MONTH) + 1;
-        intDay = c.get(Calendar.DAY_OF_MONTH);
-        intHours = c.get(Calendar.HOUR_OF_DAY);
-        intMinutes = c.get(Calendar.MINUTE);
-
-        byteDate = "0E" + addZeroForNum(Integer.toHexString(intYear), 2) +
-                addZeroForNum(Integer.toHexString(intMonth), 2) +
-                addZeroForNum(Integer.toHexString(intDay), 2) +
-                addZeroForNum(Integer.toHexString(intHours), 2) +
-                addZeroForNum(Integer.toHexString(intMinutes), 2);
-
         BluetoothUtil.getClient().registerBluetoothStateListener(new BluetoothStateListener() {
             @Override
             public void onBluetoothStateChanged(boolean openOrClosed) {
@@ -124,7 +111,7 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
             BluetoothUtil.getClient().openBluetooth();
         }
         SearchRequest request = new SearchRequest.Builder()
-                .searchBluetoothLeDevice(5000, 2).build();
+                .searchBluetoothLeDevice(2000, 1).build();
         BluetoothUtil.getClient().search(request, new SearchResponse() {
             @Override
             public void onSearchStarted() {
@@ -152,7 +139,10 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
                     rvDevice.setLayoutManager(new LinearLayoutManager(ScanBluetoothActivity.this));
                     adapter = new DeviceAdapter(beaconList);
                     rvDevice.setAdapter(adapter);
-                    adapter.onItemClick(ScanBluetoothActivity.this);
+                    BasebeaconList = beaconList;
+                    connect(beaconList.get(0));
+
+//                adapter.onItemClick(ScanBluetoothActivity.this);
 
                 }
             }
@@ -160,6 +150,47 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
             @Override
             public void onSearchCanceled() {
                 scanDevice();
+            }
+        });
+    }
+
+
+
+    private  void  connect(final SearchResult item){
+        showLoadingDialog("Connecting....");
+        BleConnectOptions options = new BleConnectOptions.Builder()
+                .setConnectRetry(1)
+                .setConnectTimeout(1000)
+                .setServiceDiscoverRetry(1)
+                .setServiceDiscoverTimeout(1000)
+                .build();
+
+        BluetoothUtil.getClient().connect(item.getAddress(), options, new BleConnectResponse() {
+            @Override
+            public void onResponse(int code, BleGattProfile profile) {
+                dismissLoadingDialog();
+                if (code == REQUEST_SUCCESS) {
+                    searchResult = item;
+                    registerConnectStatusListener();
+                    notifyRsp();
+
+                    Calendar c = Calendar.getInstance();
+                    intYear = c.get(Calendar.YEAR);
+                    intMonth = c.get(Calendar.MONTH) + 1;
+                    intDay = c.get(Calendar.DAY_OF_MONTH);
+                    intHours = c.get(Calendar.HOUR_OF_DAY);
+                    intMinutes = c.get(Calendar.MINUTE);
+
+                    byteDate = "0E" + "aa"+addZeroForNum(Integer.toHexString(intYear), 2) +
+                            addZeroForNum(Integer.toHexString(intMonth), 2) +
+                            addZeroForNum(Integer.toHexString(intDay), 2) +
+                            addZeroForNum(Integer.toHexString(intHours), 2) +
+                            addZeroForNum(Integer.toHexString(intMinutes), 2);
+
+                    write(stringToBytes(byteDate));
+                    startActivityIn(new Intent(ScanBluetoothActivity.this, MainActivity.class), ScanBluetoothActivity.this);
+                    finish();
+                }
             }
         });
     }
@@ -179,12 +210,26 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
             public void onResponse(int code, BleGattProfile profile) {
                 dismissLoadingDialog();
                 if (code == REQUEST_SUCCESS) {
-//                    ToastUtils.showShortToast("连接成功");
                     searchResult = item;
                     registerConnectStatusListener();
                     notifyRsp();
+
+                    Calendar c = Calendar.getInstance();
+                    intYear = c.get(Calendar.YEAR);
+                    intMonth = c.get(Calendar.MONTH) + 1;
+                    intDay = c.get(Calendar.DAY_OF_MONTH);
+                    intHours = c.get(Calendar.HOUR_OF_DAY);
+                    intMinutes = c.get(Calendar.MINUTE);
+
+                    byteDate = "0E" + "aa"+addZeroForNum(Integer.toHexString(intYear), 2) +
+                            addZeroForNum(Integer.toHexString(intMonth), 2) +
+                            addZeroForNum(Integer.toHexString(intDay), 2) +
+                            addZeroForNum(Integer.toHexString(intHours), 2) +
+                            addZeroForNum(Integer.toHexString(intMinutes), 2);
+
                     write(stringToBytes(byteDate));
                     startActivityIn(new Intent(ScanBluetoothActivity.this, MainActivity.class), ScanBluetoothActivity.this);
+                    finish();
                 }
             }
         });

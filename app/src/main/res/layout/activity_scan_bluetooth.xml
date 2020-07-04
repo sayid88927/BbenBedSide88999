@@ -8,7 +8,8 @@
     <RelativeLayout
         android:id="@+id/rl_top"
         android:layout_width="match_parent"
-        android:layout_height="50dp">
+        android:layout_height="50dp"
+        android:background="@color/color_18457E">
 
         <TextView
             android:layout_width="wrap_content"
@@ -16,30 +17,29 @@
             android:layout_centerInParent="true"
             android:text="Available eBaby"
             android:textColor="@color/white"
-            android:textSize="20sp" />
+            android:textSize="16sp" />
 
     </RelativeLayout>
 
     <View
-        android:layout_below="@+id/rl_top"
-        android:background="@drawable/button_bg"
         android:layout_width="match_parent"
-        android:layout_height="1dp"/>
+        android:layout_height="1dp"
+        android:layout_below="@+id/rl_top"
+        android:background="@drawable/button_bg" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_device"
-        android:layout_below="@+id/rl_top"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/rl_top"
         android:visibility="gone" />
 
 
     <LinearLayout
         android:id="@+id/ll_again"
-        android:layout_below="@+id/rl_top"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="50dp"
+        android:layout_below="@+id/rl_top"
         android:orientation="vertical"
         android:visibility="gone">
 
@@ -52,10 +52,11 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:gravity="center"
             android:text="We can't connect! Make sure:"
             android:textColor="@color/white"
-            android:textSize="25sp" />
+            android:textSize="18sp" />
 
         <TextView
             android:layout_width="match_parent"
@@ -64,8 +65,8 @@
             android:layout_marginTop="10dp"
             android:gravity="left"
             android:text="eBaby is nearby and securely plugged in "
-            android:textColor="@color/white"
-            android:textSize="20sp" />
+            android:textColor="@color/color_979DB9"
+            android:textSize="15sp" />
 
         <TextView
             android:layout_width="match_parent"
@@ -74,8 +75,8 @@
             android:layout_marginTop="10dp"
             android:gravity="left"
             android:text="Bluetooth is on "
-            android:textColor="@color/white"
-            android:textSize="20sp" />
+            android:textColor="@color/color_979DB9"
+            android:textSize="15sp" />
 
         <TextView
             android:layout_width="match_parent"
@@ -83,9 +84,9 @@
             android:layout_marginLeft="20dp"
             android:layout_marginTop="10dp"
             android:gravity="left"
-            android:text="Somebaby else doesn't have the eBaby app open on their phone"
-            android:textColor="@color/white"
-            android:textSize="20sp" />
+            android:text="Somebaby else doesn't have\nthe eBaby app open on their phone"
+            android:textColor="@color/color_979DB9"
+            android:textSize="15sp" />
 
         <TextView
             android:layout_width="match_parent"
@@ -94,27 +95,26 @@
             android:layout_marginTop="10dp"
             android:gravity="left"
             android:text="Location services is turned on"
-            android:textColor="@color/white"
-            android:textSize="20sp" />
-
+            android:textColor="@color/color_979DB9"
+            android:textSize="15sp" />
 
         <Button
             android:id="@+id/btu_again"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="140dp"
+            android:layout_height="35dp"
             android:layout_gravity="center"
-            android:layout_marginTop="80dp"
+            android:layout_marginTop="30dp"
             android:background="@drawable/button_bg"
-            android:text="Try Again" />
-
+            android:text="Try Again"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
 
     </LinearLayout>
 
-
     <RelativeLayout
         android:id="@+id/rl_scan"
-        android:layout_width="200dp"
-        android:layout_height="180dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:visibility="gone">
 
@@ -126,11 +126,11 @@
 
         <TextView
             android:id="@+id/tvTip"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/pb"
-            android:layout_centerInParent="true"
             android:layout_marginTop="20dp"
+            android:gravity="center"
             android:text="Searching for eBaby"
             android:textColor="@color/white"
             android:textSize="20sp" />

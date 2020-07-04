@@ -104,19 +104,20 @@ public class MainActivity extends BaseActivity implements CheckColorAdapter.onIt
     public void initView() {
         setSwipeBackEnable(false);
         Permission.requestPermission(this);
-
+        sbBrightness.setProgress(15);
+        sbVolume.setProgress(15);
         sbBrightness.setOnSeekBarChangeListener(this);
         sbVolume.setOnSeekBarChangeListener(this);
 
         List<CheckColorBean> colorBean = PreferUtil.getInstance().getDataList(PreferUtil.CHECKCOLORBEAN);
-        for(int i =0;i<colorBean.size();i++){
-            if(colorBean.get(i).isCheckStart()){
+        for (int i = 0; i < colorBean.size(); i++) {
+            if (colorBean.get(i).isCheckStart()) {
                 rlHalfCircle.setBackgroundResource(Constant.halfCircle[colorBean.get(i).getId()]);
             }
         }
         List<CheckColorBean> musicBean = PreferUtil.getInstance().getDataList(PreferUtil.CHECKVOICEBEAN);
-        for(int i =0;i<musicBean.size();i++){
-            if(musicBean.get(i).isCheckStart()){
+        for (int i = 0; i < musicBean.size(); i++) {
+            if (musicBean.get(i).isCheckStart()) {
                 ivMuisc.setBackgroundResource(Constant.unSelectedVoiceDrawable[musicBean.get(i).getId()]);
             }
         }
@@ -138,7 +139,7 @@ public class MainActivity extends BaseActivity implements CheckColorAdapter.onIt
                 break;
 
             case R.id.rl_setting:
-
+            startActivityIn(new Intent(MainActivity.this,SettingActivity.class),MainActivity.this);
                 break;
             case R.id.ll_light:
                 showCheckColor(CheckColorAdapter.checkColor);
@@ -165,6 +166,7 @@ public class MainActivity extends BaseActivity implements CheckColorAdapter.onIt
     private void computeTime() {
         if (Hours == 0 && Minute == 0 && Seconds == 0) {
             timerRunnable.cancel(false);
+
         } else {
             Seconds--;
             if (Seconds < 0) {
@@ -229,13 +231,15 @@ public class MainActivity extends BaseActivity implements CheckColorAdapter.onIt
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Logger.e("Hours" + String.valueOf(Hours) + "\n" + "Miutes" + String.valueOf(Minute));
                 timerRunnable = BaseApplication.MAIN_EXECUTOR.scheduleWithFixedDelay(runnable, 0, 1, TimeUnit.SECONDS);
-                Seconds = 60;
+                Seconds = 0;
                 hideDialog();
+
                 String byteDate = "08" + "aa" + addZeroForNum(Integer.toHexString(Hours), 2) +
-                        addZeroForNum(Integer.toHexString(Minute), 2);
+                        addZeroForNum(Integer.toHexString(Minute), 2) +
+                        addZeroForNum(Integer.toHexString(0), 2);
                 write(stringToBytes(byteDate));
+
             }
         });
         CustomNumberPicker npHours = (CustomNumberPicker) view.findViewById(R.id.np_hours);
@@ -275,12 +279,19 @@ public class MainActivity extends BaseActivity implements CheckColorAdapter.onIt
                 initCheckColorData(type);
         } else if (type == CheckColorAdapter.checkVoice) {
             data = PreferUtil.getInstance().getDataList(PreferUtil.CHECKVOICEBEAN);
+
             if (data == null || data.size() <= 0)
                 initCheckColorData(type);
         }
 
         View view = View.inflate(BaseApplication.getContext(), R.layout.dialog_check_color, null);
         RecyclerView rvCheckColor = view.findViewById(R.id.rv_check_color);
+        TextView tvTitle  = view.findViewById(R.id.tv_title);
+        if(type == CheckColorAdapter.checkColor){
+            tvTitle.setText("Select a Color");
+        }else if(type == CheckColorAdapter.checkVoice){
+            tvTitle.setText("Select a Track");
+        }
         rvCheckColor.setLayoutManager(new GridLayoutManager(MainActivity.this, 3));
         adapter = new CheckColorAdapter(data, type);
         rvCheckColor.setAdapter(adapter);
@@ -382,9 +393,9 @@ public class MainActivity extends BaseActivity implements CheckColorAdapter.onIt
                 data.get(i).setCheckStart(true);
                 selectedVoiceMusic = Constant.selectedVoiceMusic[data.get(i).getId()];
                 wrbg = Constant.wRGB[data.get(i).getId()];
-                if(CheckColorAdapter.getType() == CheckColorAdapter.checkColor && item.getId() != data.size() - 1){
+                if (CheckColorAdapter.getType() == CheckColorAdapter.checkColor && item.getId() != data.size() - 1) {
                     rlHalfCircle.setBackgroundResource(Constant.halfCircle[data.get(i).getId()]);
-                }else  if(CheckColorAdapter.getType() == CheckColorAdapter.checkVoice){
+                } else if (CheckColorAdapter.getType() == CheckColorAdapter.checkVoice) {
                     ivMuisc.setBackgroundResource(Constant.unSelectedVoiceDrawable[data.get(i).getId()]);
                 }
             } else {
