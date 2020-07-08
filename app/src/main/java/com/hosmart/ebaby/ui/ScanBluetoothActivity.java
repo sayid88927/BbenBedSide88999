@@ -1,6 +1,11 @@
 package com.hosmart.ebaby.ui;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.LocationManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -8,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.blankj.utilcode.utils.ConvertUtils;
 import com.blankj.utilcode.utils.TimeUtils;
@@ -16,6 +22,7 @@ import com.hosmart.ebaby.R;
 import com.hosmart.ebaby.base.BaseActivity;
 import com.hosmart.ebaby.ui.apadter.DeviceAdapter;
 import com.hosmart.ebaby.utils.BluetoothUtil;
+import com.hosmart.ebaby.utils.Permission;
 import com.inuker.bluetooth.library.BluetoothClient;
 import com.inuker.bluetooth.library.beacon.Beacon;
 import com.inuker.bluetooth.library.connect.listener.BluetoothStateListener;
@@ -53,12 +60,12 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
     LinearLayout llAgain;
 
     @BindView(R.id.btu_again)
-    Button btuAgain;
+    TextView btuAgain;
 
     private DeviceAdapter adapter;
     private List<SearchResult> beaconList = new ArrayList<>();
     private SearchRequest request;
-    private int intYear, intDay, intHours, intMinutes, intMonth;
+    private int intYear, intDay, intHours, intMinutes, intSecond, intMonth;
     private String byteDate;
 
 
@@ -77,19 +84,18 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
 
     }
 
-
     @Override
     public void initView() {
         setSwipeBackEnable(false);
-        scanDevice();
+//        Permission.requestPermission(this);
 
+        scanDevice();
         BluetoothUtil.getClient().registerBluetoothStateListener(new BluetoothStateListener() {
             @Override
             public void onBluetoothStateChanged(boolean openOrClosed) {
                 BluetoothLog.v(String.format("onBluetoothStateChanged %b", openOrClosed));
             }
         });
-
     }
 
     @OnClick({R.id.btu_again})
@@ -111,11 +117,14 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
             BluetoothUtil.getClient().openBluetooth();
         }
         SearchRequest request = new SearchRequest.Builder()
-                .searchBluetoothLeDevice(2000, 1).build();
+                .searchBluetoothLeDevice(2000, 3)
+
+                .build();
         BluetoothUtil.getClient().search(request, new SearchResponse() {
             @Override
             public void onSearchStarted() {
                 beaconList.clear();
+                Permission.requestPermission(ScanBluetoothActivity.this);
             }
 
             @Override
@@ -141,9 +150,7 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
                     rvDevice.setAdapter(adapter);
                     BasebeaconList = beaconList;
                     connect(beaconList.get(0));
-
-//                adapter.onItemClick(ScanBluetoothActivity.this);
-
+                    adapter.onItemClick(ScanBluetoothActivity.this);
                 }
             }
 
@@ -155,11 +162,10 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
     }
 
 
-
-    private  void  connect(final SearchResult item){
+    private void connect(final SearchResult item) {
         showLoadingDialog("Connecting....");
         BleConnectOptions options = new BleConnectOptions.Builder()
-                .setConnectRetry(1)
+                .setConnectRetry(3)
                 .setConnectTimeout(1000)
                 .setServiceDiscoverRetry(1)
                 .setServiceDiscoverTimeout(1000)
@@ -180,16 +186,20 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
                     intDay = c.get(Calendar.DAY_OF_MONTH);
                     intHours = c.get(Calendar.HOUR_OF_DAY);
                     intMinutes = c.get(Calendar.MINUTE);
+                    intSecond = c.get(Calendar.SECOND);
 
-                    byteDate = "0E" + "aa"+addZeroForNum(Integer.toHexString(intYear), 2) +
+                    byteDate = "0E" + "aa" + "00"+
+                            addZeroForNum(Integer.toHexString(Integer.parseInt(String.valueOf(intYear).substring(2))), 2) +
                             addZeroForNum(Integer.toHexString(intMonth), 2) +
                             addZeroForNum(Integer.toHexString(intDay), 2) +
                             addZeroForNum(Integer.toHexString(intHours), 2) +
-                            addZeroForNum(Integer.toHexString(intMinutes), 2);
+                            addZeroForNum(Integer.toHexString(intMinutes), 2) +
+                            addZeroForNum(Integer.toHexString(intSecond), 2);
 
                     write(stringToBytes(byteDate));
                     startActivityIn(new Intent(ScanBluetoothActivity.this, MainActivity.class), ScanBluetoothActivity.this);
                     finish();
+
                 }
             }
         });
@@ -197,41 +207,16 @@ public class ScanBluetoothActivity extends BaseActivity implements DeviceAdapter
 
     @Override
     public void onItemClick(final SearchResult item) {
-        showLoadingDialog("Connecting....");
-        BleConnectOptions options = new BleConnectOptions.Builder()
-                .setConnectRetry(3)
-                .setConnectTimeout(20000)
-                .setServiceDiscoverRetry(3)
-                .setServiceDiscoverTimeout(10000)
-                .build();
+        connect(item);
+    }
 
-        BluetoothUtil.getClient().connect(item.getAddress(), options, new BleConnectResponse() {
-            @Override
-            public void onResponse(int code, BleGattProfile profile) {
-                dismissLoadingDialog();
-                if (code == REQUEST_SUCCESS) {
-                    searchResult = item;
-                    registerConnectStatusListener();
-                    notifyRsp();
-
-                    Calendar c = Calendar.getInstance();
-                    intYear = c.get(Calendar.YEAR);
-                    intMonth = c.get(Calendar.MONTH) + 1;
-                    intDay = c.get(Calendar.DAY_OF_MONTH);
-                    intHours = c.get(Calendar.HOUR_OF_DAY);
-                    intMinutes = c.get(Calendar.MINUTE);
-
-                    byteDate = "0E" + "aa"+addZeroForNum(Integer.toHexString(intYear), 2) +
-                            addZeroForNum(Integer.toHexString(intMonth), 2) +
-                            addZeroForNum(Integer.toHexString(intDay), 2) +
-                            addZeroForNum(Integer.toHexString(intHours), 2) +
-                            addZeroForNum(Integer.toHexString(intMinutes), 2);
-
-                    write(stringToBytes(byteDate));
-                    startActivityIn(new Intent(ScanBluetoothActivity.this, MainActivity.class), ScanBluetoothActivity.this);
-                    finish();
-                }
-            }
-        });
+    public static final boolean isLocationEnable(Context context) {
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        boolean networkProvider = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        boolean gpsProvider = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        if (networkProvider || gpsProvider) return true;
+        return false;
     }
 }
+
+

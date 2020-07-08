@@ -24,16 +24,6 @@ public class Permission {
      * 6.0动态权限：
      */
     public static final String[] ps = new String[]{
-            "android.permission.CAMERA",
-            "android.permission.READ_CONTACTS",
-            "android.permission.ACCESS_FINE_LOCATION",
-            "android.permission.RECORD_AUDIO",
-            "android.permission.READ_PHONE_STATE",
-            "android.permission.READ_EXTERNAL_STORAGE",
-            "android.permission.CALL_PHONE",
-            "android.permission.ACCESS_COARSE_LOCATION",
-            "android.permission.WRITE_EXTERNAL_STORAGE",
-            "android.permission.READ_EXTERNAL_STORAGE",
              "android.permission.BLUETOOTH",
              "android.permission.BLUETOOTH_ADMIN",
               "android.permission.ACCESS_FINE_LOCATION",
@@ -59,9 +49,7 @@ public class Permission {
                 strings[i] = ss.get(i);
             }
             ActivityCompat.requestPermissions(context, strings, REQUEST_CODE_ASK_CALL_PHONE);
-
         }
-
     }
 
     /**
@@ -72,7 +60,7 @@ public class Permission {
      *                        return false：没打开权限，
      */
     public static boolean checkPublishPermission(final Activity context, String s) {
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= 23 ) {
             if (PackageManager.PERMISSION_GRANTED != ActivityCompat.checkSelfPermission(context, s)) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle("权限开启提醒")

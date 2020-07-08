@@ -24,10 +24,6 @@ public class BaseApplication extends Application {
         return mContext;
     }
 
-
-    private boolean isLogin = false;
-
-
     @Override
     public void onCreate() {
         super.onCreate();

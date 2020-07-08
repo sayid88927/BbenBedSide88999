@@ -54,7 +54,7 @@
         android:orientation="horizontal"
         android:weightSum="4">
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/ll_light"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -66,26 +66,25 @@
             <ImageView
                 android:layout_width="40dp"
                 android:layout_height="40dp"
+                android:layout_above="@+id/tv_light"
+                android:layout_centerHorizontal="true"
                 android:layout_gravity="center"
                 android:background="@drawable/icon_light" />
 
             <TextView
+                android:id="@+id/tv_light"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
                 android:layout_gravity="center"
+                android:layout_marginBottom="10dp"
                 android:text="Light"
                 android:textColor="@color/white" />
 
-        </LinearLayout>
+        </RelativeLayout>
 
-<!--        <View-->
-<!--            android:layout_width="1dp"-->
-<!--            android:layout_height="match_parent"-->
-<!--            android:layout_marginTop="10dp"-->
-<!--            android:layout_marginBottom="10dp"-->
-<!--            android:background="#5270CC" />-->
-
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/ll_voice"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -95,28 +94,28 @@
             android:orientation="vertical">
 
             <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_above="@+id/tv_sound"
+                android:layout_centerHorizontal="true"
                 android:layout_gravity="center"
+                android:layout_marginBottom="6dp"
                 android:background="@drawable/icon_sound" />
 
             <TextView
+                android:id="@+id/tv_sound"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
                 android:layout_gravity="center"
+                android:layout_marginBottom="10dp"
                 android:text="Sound"
                 android:textColor="@color/white" />
 
-        </LinearLayout>
+        </RelativeLayout>
 
-<!--        <View-->
-<!--            android:layout_width="1dp"-->
-<!--            android:layout_height="match_parent"-->
-<!--            android:layout_marginTop="10dp"-->
-<!--            android:layout_marginBottom="10dp"-->
-<!--            android:background="#5270CC" />-->
-
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/ll_timer"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -126,28 +125,28 @@
             android:orientation="vertical">
 
             <ImageView
+
                 android:layout_width="40dp"
                 android:layout_height="40dp"
+                android:layout_above="@+id/tv_time"
+                android:layout_centerHorizontal="true"
                 android:layout_gravity="center"
                 android:background="@drawable/icon_timer" />
 
             <TextView
+                android:id="@+id/tv_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
                 android:layout_gravity="center"
+                android:layout_marginBottom="10dp"
                 android:text="Timer"
                 android:textColor="@color/white" />
 
-        </LinearLayout>
+        </RelativeLayout>
 
-<!--        <View-->
-<!--            android:layout_width="1dp"-->
-<!--            android:layout_height="match_parent"-->
-<!--            android:layout_marginTop="10dp"-->
-<!--            android:layout_marginBottom="10dp"-->
-<!--            android:background="#5270CC" />-->
-
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/ll_programs"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -159,17 +158,23 @@
             <ImageView
                 android:layout_width="40dp"
                 android:layout_height="40dp"
+                android:layout_above="@+id/tv_programs"
+                android:layout_centerHorizontal="true"
                 android:layout_gravity="center"
                 android:background="@drawable/icon_seting" />
 
             <TextView
+                android:id="@+id/tv_programs"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
                 android:layout_gravity="center"
                 android:text="Programs"
+                android:layout_marginBottom="10dp"
                 android:textColor="@color/white" />
 
-        </LinearLayout>
+        </RelativeLayout>
 
 
     </LinearLayout>

@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -15,6 +16,7 @@ import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.blankj.utilcode.utils.ToastUtils;
 
@@ -42,22 +44,22 @@ import java.util.concurrent.TimeUnit;
 import butterknife.BindView;
 import butterknife.OnClick;
 
-public class MainActivity extends BaseActivity implements CheckColorAdapter.onItemClick, SeekBar.OnSeekBarChangeListener {
+public class MainActivity extends BaseActivity implements CheckColorAdapter.onItemClick, SeekBar.OnSeekBarChangeListener, NumberPicker.Formatter {
 
     @BindView(R.id.rl_setting)
     RelativeLayout rlSetting;
 
     @BindView(R.id.ll_light)
-    LinearLayout llLight;
+    RelativeLayout llLight;
 
     @BindView(R.id.ll_voice)
-    LinearLayout llVoice;
+    RelativeLayout llVoice;
 
     @BindView(R.id.ll_timer)
-    LinearLayout llTimer;
+    RelativeLayout llTimer;
 
     @BindView(R.id.ll_programs)
-    LinearLayout llPrograms;
+    RelativeLayout llPrograms;
 
     @BindView(R.id.tv_timer)
     TextView tvTimer;
@@ -77,7 +79,7 @@ public class MainActivity extends BaseActivity implements CheckColorAdapter.onIt
     @BindView(R.id.iv_muisc)
     ImageView ivMuisc;
 
-    private boolean powerStart = false;
+    private boolean powerStart = true;
     private CustomDialog checkDColorDialog;
     private CheckColorAdapter adapter;
     private List<CheckColorBean> data = new ArrayList<>();
@@ -103,22 +105,18 @@ public class MainActivity extends BaseActivity implements CheckColorAdapter.onIt
     @Override
     public void initView() {
         setSwipeBackEnable(false);
-        Permission.requestPermission(this);
+
         sbBrightness.setProgress(15);
         sbVolume.setProgress(15);
+
+
         sbBrightness.setOnSeekBarChangeListener(this);
         sbVolume.setOnSeekBarChangeListener(this);
 
-        List<CheckColorBean> colorBean = PreferUtil.getInstance().getDataList(PreferUtil.CHECKCOLORBEAN);
-        for (int i = 0; i < colorBean.size(); i++) {
-            if (colorBean.get(i).isCheckStart()) {
-                rlHalfCircle.setBackgroundResource(Constant.halfCircle[colorBean.get(i).getId()]);
-            }
-        }
         List<CheckColorBean> musicBean = PreferUtil.getInstance().getDataList(PreferUtil.CHECKVOICEBEAN);
         for (int i = 0; i < musicBean.size(); i++) {
             if (musicBean.get(i).isCheckStart()) {
-                ivMuisc.setBackgroundResource(Constant.unSelectedVoiceDrawable[musicBean.get(i).getId()]);
+                ivMuisc.setBackgroundResource(Constant.SelectedMusicDrawable[musicBean.get(i).getId()]);
             }
         }
     }
@@ -127,19 +125,19 @@ public class MainActivity extends BaseActivity implements CheckColorAdapter.onIt
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_power:
-                if (!powerStart) {
+                if (powerStart) {
                     write(Constant.powerOff);
-                    powerStart = true;
+                    powerStart = false;
                     ivPower.setBackground(getResources().getDrawable(R.drawable.btn_power_off));
                 } else {
                     write(Constant.powerOn);
-                    powerStart = false;
+                    powerStart = true;
                     ivPower.setBackground(getResources().getDrawable(R.drawable.btn_power_on));
                 }
                 break;
 
             case R.id.rl_setting:
-            startActivityIn(new Intent(MainActivity.this,SettingActivity.class),MainActivity.this);
+                startActivityIn(new Intent(MainActivity.this, SettingActivity.class), MainActivity.this);
                 break;
             case R.id.ll_light:
                 showCheckColor(CheckColorAdapter.checkColor);
@@ -166,7 +164,6 @@ public class MainActivity extends BaseActivity implements CheckColorAdapter.onIt
     private void computeTime() {
         if (Hours == 0 && Minute == 0 && Seconds == 0) {
             timerRunnable.cancel(false);
-
         } else {
             Seconds--;
             if (Seconds < 0) {
@@ -219,6 +216,8 @@ public class MainActivity extends BaseActivity implements CheckColorAdapter.onIt
 
     private void showCheckTimer() {
         hideDialog();
+        Hours =0;
+        Minute =0;
         View view = View.inflate(BaseApplication.getContext(), R.layout.dialog_check_timer, null);
         Button btnCancel = view.findViewById(R.id.btn_cancel);
         Button btnOk = view.findViewById(R.id.btn_ok);
@@ -231,9 +230,14 @@ public class MainActivity extends BaseActivity implements CheckColorAdapter.onIt
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                timerRunnable = BaseApplication.MAIN_EXECUTOR.scheduleWithFixedDelay(runnable, 0, 1, TimeUnit.SECONDS);
+                if (timerRunnable != null) {
+                    timerRunnable.cancel(false);
+                    timerRunnable = null;
+                }
                 Seconds = 0;
                 hideDialog();
+                Logger.e(String.valueOf(Hours)+"\n"+String.valueOf(Minute));
+                timerRunnable = BaseApplication.MAIN_EXECUTOR.scheduleWithFixedDelay(runnable, 0, 1, TimeUnit.SECONDS);
 
                 String byteDate = "08" + "aa" + addZeroForNum(Integer.toHexString(Hours), 2) +
                         addZeroForNum(Integer.toHexString(Minute), 2) +
@@ -243,8 +247,9 @@ public class MainActivity extends BaseActivity implements CheckColorAdapter.onIt
             }
         });
         CustomNumberPicker npHours = (CustomNumberPicker) view.findViewById(R.id.np_hours);
+        npHours.setFormatter(this);
         npHours.setMinValue(0);
-        npHours.setMaxValue(24);
+        npHours.setMaxValue(23);
         npHours.setNumberPickerDividerColor(npHours);
         npHours.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
         npHours.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
@@ -254,8 +259,9 @@ public class MainActivity extends BaseActivity implements CheckColorAdapter.onIt
             }
         });
         CustomNumberPicker npMinute = (CustomNumberPicker) view.findViewById(R.id.np_minute);
+        npMinute.setFormatter(this);
         npMinute.setMinValue(0);
-        npMinute.setMaxValue(60);
+        npMinute.setMaxValue(59);
         npMinute.setNumberPickerDividerColor(npMinute);
         npMinute.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
         npMinute.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
@@ -264,6 +270,7 @@ public class MainActivity extends BaseActivity implements CheckColorAdapter.onIt
                 Minute = newVal;
             }
         });
+
         checkDColorDialog = new CustomDialog(this, view, R.style.ActivityDialogStyle);
         checkDColorDialog.show();
         checkDColorDialog.setCancelable(true);
@@ -286,10 +293,10 @@ public class MainActivity extends BaseActivity implements CheckColorAdapter.onIt
 
         View view = View.inflate(BaseApplication.getContext(), R.layout.dialog_check_color, null);
         RecyclerView rvCheckColor = view.findViewById(R.id.rv_check_color);
-        TextView tvTitle  = view.findViewById(R.id.tv_title);
-        if(type == CheckColorAdapter.checkColor){
+        TextView tvTitle = view.findViewById(R.id.tv_title);
+        if (type == CheckColorAdapter.checkColor) {
             tvTitle.setText("Select a Color");
-        }else if(type == CheckColorAdapter.checkVoice){
+        } else if (type == CheckColorAdapter.checkVoice) {
             tvTitle.setText("Select a Track");
         }
         rvCheckColor.setLayoutManager(new GridLayoutManager(MainActivity.this, 3));
@@ -396,7 +403,7 @@ public class MainActivity extends BaseActivity implements CheckColorAdapter.onIt
                 if (CheckColorAdapter.getType() == CheckColorAdapter.checkColor && item.getId() != data.size() - 1) {
                     rlHalfCircle.setBackgroundResource(Constant.halfCircle[data.get(i).getId()]);
                 } else if (CheckColorAdapter.getType() == CheckColorAdapter.checkVoice) {
-                    ivMuisc.setBackgroundResource(Constant.unSelectedVoiceDrawable[data.get(i).getId()]);
+                    ivMuisc.setBackgroundResource(Constant.SelectedMusicDrawable[data.get(i).getId()]);
                 }
             } else {
                 data.get(i).setCheckStart(false);
@@ -470,9 +477,25 @@ public class MainActivity extends BaseActivity implements CheckColorAdapter.onIt
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (seekBar == sbBrightness) {
+            if (progress <= 3) {
+                sbBrightness.setProgress(3);
+                progress = 0;
+            }
+            if(progress >= 27){
+                sbBrightness.setProgress(27);
+                progress = 30;
+            }
             String byteDate = "04" + "aa" + addZeroForNum(Integer.toHexString(progress), 2);
             write(stringToBytes(byteDate));
         } else if (seekBar == sbVolume) {
+            if (progress <= 3) {
+                sbVolume.setProgress(3);
+                progress = 0;
+            }
+            if(progress >= 27){
+                sbVolume.setProgress(27);
+                progress = 30;
+            }
             String byteDate = "03" + "aa" + addZeroForNum(Integer.toHexString(progress), 2);
             write(stringToBytes(byteDate));
         }
@@ -488,6 +511,14 @@ public class MainActivity extends BaseActivity implements CheckColorAdapter.onIt
 
     }
 
+    @Override
+    public String format(int value) {
+        String tmpStr = String.valueOf(value);
+        if (value < 10) {
+            tmpStr = "0" + tmpStr;
+        }
+        return tmpStr;
+    }
 }
 
 

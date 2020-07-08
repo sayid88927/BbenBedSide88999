@@ -14,10 +14,19 @@ public class AlarmSettingBean {
     private boolean  TurnOn;
     private boolean TurnOff;
     private boolean alarmOnly;
+    private  String alarmName;
 
     private List<CheckColorBean> colorBean;
     private  List<CheckColorBean> muiscBean;
     private  List<CheckColorBean> weekBean;
+
+    public String getAlarmName() {
+        return alarmName;
+    }
+
+    public void setAlarmName(String alarmName) {
+        this.alarmName = alarmName;
+    }
 
     public List<CheckColorBean> getWeekBean() {
         return weekBean;

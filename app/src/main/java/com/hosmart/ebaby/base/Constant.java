@@ -62,11 +62,25 @@ public class Constant {
             R.drawable.voice_10, R.drawable.voice_11, R.drawable.voice_12
     };
 
+    public static final int[] SelectedMusicDrawable = {
+            R.drawable.icon_voice_1, R.drawable.icon_voice_2, R.drawable.icon_voice_3,
+            R.drawable.icon_voice_4, R.drawable.icon_voice_5, R.drawable.icon_voice_6,
+            R.drawable.icon_voice_7, R.drawable.icon_voice_8, R.drawable.icon_voice_9,
+            R.drawable.icon_voice_10, R.drawable.icon_voice_11, R.drawable.icon_voice_12
+    };
+
     public static final int[] selectedVoiceMusic = {
             41, 10, 11,
             12, 13, 14,
             15, 16, 17,
             18, 19, 20
+    };
+
+    public static final int[] selectedAlarmMusic = {
+            31, 2, 3,
+            4, 5, 6,
+            7, 8, 9,
+            10, 11, 12
     };
 
     public static final int[] selectedRepeatDrawable = {
@@ -79,21 +93,20 @@ public class Constant {
             "Su", "M", "Tu", "W", "Th", "F", "Sa"
     };
 
-
     public static final int[] unSelectedRepeatDrawable = {
             R.drawable.sunday, R.drawable.monday, R.drawable.tuesday,
             R.drawable.wednesday, R.drawable.thursday, R.drawable.friday,
             R.drawable.saturdday
     };
 
-    public static final int wRGB[][] = {{0, 0, 0, 0}, {255, 0, 0, 0}, {0, 149, 76, 67},
-            {0, 145, 86, 40}, {0, 154, 122, 19}, {0, 48, 118, 94},
-            {0, 38, 84, 138}, {0, 13, 108, 131}, {0, 143, 93, 154},
-            {0, 181, 81, 121}, {255, 0, 0, 0}, {0, 0, 0, 0},
+    public static final int wRGB[][] =
+            {{0, 0, 0, 0}, {255, 0, 0, 0}, {0, 255, 0, 0},
+            {0, 255, 215, 0}, {0, 255, 255, 0}, {0, 0, 255, 0},
+            {0, 0, 0, 255}, {0, 30, 144, 255}, {0, 160, 30, 240},
+            {0, 221, 160, 221}, {255, 0, 0, 0}, {0, 0, 0, 0},
     };
 
     public static final byte[] powerOff = new byte[]{0x00, 0x00}; //开灯及声音指令
     public static final byte[] powerOn = new byte[]{0x00, 0x01}; //开灯及声音指令
-
 
 }

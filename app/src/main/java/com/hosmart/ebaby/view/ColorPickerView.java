@@ -172,7 +172,7 @@ public class ColorPickerView extends View {
 
         pointPaint.setColor(Color.WHITE);
         pointPaint.setStyle(Paint.Style.STROKE);
-        pointPaint.setStrokeWidth(1);
+        pointPaint.setStrokeWidth(4);
         pointPaint.setAntiAlias(true);
 
         magnifyPaint.setColor(Color.BLACK);

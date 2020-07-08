@@ -3,6 +3,10 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="color_AAAAAA">#AAAAAA</color>
+    <color name="color_707595">#707595</color>
+
+
 
 
     <!--页面背景的颜色-->

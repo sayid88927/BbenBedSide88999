@@ -177,14 +177,14 @@ public class ProgramsActivity extends BaseActivity implements CompoundButton.OnC
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (buttonView == swAlarm1) {
             if (alram1 != null) {
-                checkStart(isChecked, alram1);
+                checkStart(isChecked, alram1, 1);
             }
         } else if (buttonView == swAlarm2) {
             if (alram2 != null) {
-                checkStart(isChecked, alram2);
+                checkStart(isChecked, alram2, 2);
             }
         } else if (buttonView == swAlarm3) {
-            checkStart(isChecked, alram3);
+            checkStart(isChecked, alram3, 3);
         }
     }
 
@@ -195,6 +195,7 @@ public class ProgramsActivity extends BaseActivity implements CompoundButton.OnC
         TextView tvTime;
         TextView tvOn;
         ImageView ivCheckColor;
+        TextView tvName;
         final StringBuffer strWeek = new StringBuffer();
         int count = 0;
         switch (type) {
@@ -205,6 +206,7 @@ public class ProgramsActivity extends BaseActivity implements CompoundButton.OnC
                 tvTime = tvTime1;
                 tvOn = tvOn1;
                 ivCheckColor = ivCheckColor1;
+                tvName = tvName1;
                 break;
             case 2:
                 alarmSettingBean = alram2;
@@ -213,6 +215,7 @@ public class ProgramsActivity extends BaseActivity implements CompoundButton.OnC
                 tvTime = tvTime2;
                 tvOn = tvOn2;
                 ivCheckColor = ivCheckColor2;
+                tvName = tvName2;
                 break;
             case 3:
                 alarmSettingBean = alram3;
@@ -221,48 +224,64 @@ public class ProgramsActivity extends BaseActivity implements CompoundButton.OnC
                 tvTime = tvTime3;
                 tvOn = tvOn3;
                 ivCheckColor = ivCheckColor3;
+                tvName = tvName3;
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + type);
         }
-        for (int i = 0; i < Constant.selectedVoiceMusic.length; i++) {
-            if (alarmSettingBean.getMusic() == Constant.selectedVoiceMusic[i]) {
-                ivMuisc.setBackgroundResource(Constant.unSelectedVoiceDrawable[i]);
+        if (alarmSettingBean.getMuiscBean() != null) {
+            for (int i = 0; i < alarmSettingBean.getMuiscBean().size(); i++) {
+                if (alarmSettingBean.getMuiscBean().get(i).isCheckStart()) {
+                    ivMuisc.setBackgroundResource(Constant.unSelectedVoiceDrawable[i]);
+                }
             }
-        }
-
-        for (int i = 0; i < alarmSettingBean.getWeekBean().size(); i++) {
-            if (alarmSettingBean.getWeekBean().get(i).isCheckStart()) {
-                strWeek.append(Constant.selectedWeekString[alarmSettingBean.getWeekBean().get(i).getId()]).append("  ");
-                count++;
-            }
-        }
-        if (count == 7) {
-            tvDay.setText("Every day");
         } else {
-            tvDay.setText(strWeek.toString());
+            ivMuisc.setBackgroundResource(Constant.unSelectedVoiceDrawable[0]);
+        }
+        if (alarmSettingBean.getWeekBean() != null && alarmSettingBean.getWeekBean().size() > 0) {
+            for (int i = 0; i < alarmSettingBean.getWeekBean().size(); i++) {
+                if (alarmSettingBean.getWeekBean().get(i).isCheckStart()) {
+                    strWeek.append(Constant.selectedWeekString[alarmSettingBean.getWeekBean().get(i).getId()]).append("  ");
+                    count++;
+                }
+            }
+            if (count == 7) {
+                tvDay.setText("Every day");
+            } else {
+                tvDay.setText(strWeek.toString());
+            }
+        } else {
+            tvDay.setText("");
         }
         tvTime.setText(addZeroForNum(String.valueOf(alarmSettingBean.getHours()), 2) + ":" +
                 addZeroForNum(String.valueOf(alarmSettingBean.getMinutes()), 2));
+        if (alarmSettingBean.getAlarmName() != null) {
+            tvName.setText(alarmSettingBean.getAlarmName());
+
+        }
         if (alarmSettingBean.isTurnOn()) {
             tvOn.setText("Turn on");
         } else {
             tvOn.setText("Turn off");
         }
-
-        for (int i = 0; i < alarmSettingBean.getColorBean().size(); i++) {
-            if (alarmSettingBean.getColorBean().get(i).isCheckStart()) {
-                ivCheckColor.setBackgroundResource(Constant.selectedColorDrawable[alarmSettingBean.getColorBean().get(i).getId()]);
+        if (alarmSettingBean.getColorBean() != null && alarmSettingBean.getColorBean().size() > 0) {
+            for (int i = 0; i < alarmSettingBean.getColorBean().size(); i++) {
+                if (alarmSettingBean.getColorBean().get(i).isCheckStart()) {
+                    ivCheckColor.setBackgroundResource(Constant.selectedColorDrawable[alarmSettingBean.getColorBean().get(i).getId()]);
+                }
             }
+        } else {
+            ivCheckColor.setBackgroundResource(Constant.selectedColorDrawable[0]);
         }
     }
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void checkStart(boolean isChecked, AlarmSettingBean alarmSettingBean) {
+    private void checkStart(boolean isChecked, AlarmSettingBean alarmSettingBean, int type) {
         String alarmOnly;
         String isOff;
         if (isChecked) {
+
             alarmSettingBean.getWeek().setCharAt(0, '1');
             PreferUtil.getInstance().setIsAlarmOff1(1);
         } else {
@@ -288,7 +307,33 @@ public class ProgramsActivity extends BaseActivity implements CompoundButton.OnC
         } else {
             isOff = "aa";
         }
-        String byteDate = "06" + "aa" + wk + music + Hours + Minutes + rgb + alarmOnly + isOff;
+        String byteDate = null;
+        switch (type) {
+            case 1:
+                byteDate = "05" + "aa" + wk + music + Hours + Minutes + rgb + alarmOnly + isOff;
+                if (isChecked) {
+                    PreferUtil.getInstance().setIsAlarmOff1(1);
+                } else {
+                    PreferUtil.getInstance().setIsAlarmOff1(0);
+                }
+                break;
+            case 2:
+                byteDate = "06" + "aa" + wk + music + Hours + Minutes + rgb + alarmOnly + isOff;
+                if (isChecked) {
+                    PreferUtil.getInstance().setIsAlarmOff2(1);
+                } else {
+                    PreferUtil.getInstance().setIsAlarmOff2(0);
+                }
+                break;
+            case 3:
+                byteDate = "07" + "aa" + wk + music + Hours + Minutes + rgb + alarmOnly + isOff;
+                if (isChecked) {
+                    PreferUtil.getInstance().setIsAlarmOff3(1);
+                } else {
+                    PreferUtil.getInstance().setIsAlarmOff3(0);
+                }
+                break;
+        }
         write(stringToBytes(byteDate));
     }
 

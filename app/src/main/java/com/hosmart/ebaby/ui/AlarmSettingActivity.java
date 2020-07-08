@@ -1,16 +1,19 @@
 package com.hosmart.ebaby.ui;
 
 import android.graphics.Color;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
+
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CursorAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
@@ -40,7 +43,9 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.OnClick;
 
-public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAdapter.onRepeatItemClick, CheckColorAdapter.onItemClick {
+import static java.lang.Integer.parseInt;
+
+public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAdapter.onRepeatItemClick, CheckColorAdapter.onItemClick, NumberPicker.Formatter {
 
     private int postion;
 
@@ -83,6 +88,9 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
     @BindView(R.id.tv_week)
     TextView tvWeek;
 
+    @BindView(R.id.ed_alarm_name)
+    EditText edAlarmName;
+
     private CustomDialog checkTimeDialog;
     private CheckPepeatAdapter adapter;
     private List<CheckColorBean> dataColorBean;
@@ -91,10 +99,10 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
     private CheckColorAdapter checkColorAdapter;
 
     private AlarmSettingBean alarmSettingBean;
-    private StringBuilder checkWeek = new StringBuilder("00000000");
+    private StringBuilder checkWeek = new StringBuilder("11111111");
     private int Hours, Minute;
-    private int[] rgb = new int[]{-1, -1, -1, -1};
-    private int music;
+    private int[] rgb = new int[]{0, 0, 0, 0};
+    private int music = 41;
 
     private String alarmOnly;
     private String isOff;
@@ -119,14 +127,26 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
         setSwipeBackEnable(false);
         postion = getIntent().getIntExtra("data", 1);
         if (postion == 1) {
-            tvAlarmPostion.setText("Alarm01");
             alarmSettingBean = PreferUtil.getInstance().getAlarmSettingDataList(PreferUtil.CHECKALARMSETTINGBEAN1);
+            if (alarmSettingBean == null || alarmSettingBean.getAlarmName() == null) {
+                edAlarmName.setText("Alarm01");
+            } else {
+                edAlarmName.setText(alarmSettingBean.getAlarmName());
+            }
         } else if (postion == 2) {
-            tvAlarmPostion.setText("Alarm02");
             alarmSettingBean = PreferUtil.getInstance().getAlarmSettingDataList(PreferUtil.CHECKALARMSETTINGBEAN2);
+            if (alarmSettingBean == null || alarmSettingBean.getAlarmName() == null) {
+                edAlarmName.setText("Alarm02");
+            } else {
+                edAlarmName.setText(alarmSettingBean.getAlarmName());
+            }
         } else if (postion == 3) {
-            tvAlarmPostion.setText("Alarm03");
             alarmSettingBean = PreferUtil.getInstance().getAlarmSettingDataList(PreferUtil.CHECKALARMSETTINGBEAN3);
+            if (alarmSettingBean == null || alarmSettingBean.getAlarmName() == null) {
+                edAlarmName.setText("Alarm03");
+            } else {
+                edAlarmName.setText(alarmSettingBean.getAlarmName());
+            }
         }
         if (alarmSettingBean != null) {
             initAlarmSetting();
@@ -134,9 +154,9 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
             alarmSettingBean = new AlarmSettingBean();
         }
 
-        if(swTurnOff.isChecked()){
+        if (swTurnOff.isChecked()) {
             swTurnOn.setChecked(false);
-        }else {
+        } else {
             swTurnOn.setChecked(true);
         }
 
@@ -144,10 +164,8 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    checkWeek.setCharAt(0, '1');
                     swTurnOff.setChecked(false);
                 } else {
-                    checkWeek.setCharAt(0, '0');
                     swTurnOff.setChecked(true);
                 }
             }
@@ -157,17 +175,32 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    checkWeek.setCharAt(0, '0');
                     swTurnOn.setChecked(false);
                 } else {
-                    checkWeek.setCharAt(0, '1');
                     swTurnOn.setChecked(true);
                 }
+            }
+        });
+        edAlarmName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count,
+                                          int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                alarmSettingBean.setAlarmName(s.toString());
             }
         });
     }
 
     private void initAlarmSetting() {
+
         swTurnOn.setChecked(alarmSettingBean.isTurnOn());
         swTurnOff.setChecked(alarmSettingBean.isTurnOff());
         swOnly.setChecked(alarmSettingBean.isAlarmOnly());
@@ -181,23 +214,34 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
         dataColorBean = alarmSettingBean.getColorBean();
         tvTime.setText(addZeroForNum(String.valueOf(Hours), 2) + ":" + addZeroForNum(String.valueOf(Minute), 2));
 
+
         final StringBuffer strWeek = new StringBuffer();
-        int count =0;
-        for (int i = 0; i < dataWeekBean.size(); i++) {
-            if (dataWeekBean.get(i).isCheckStart()) {
-                strWeek.append(Constant.selectedWeekString[dataWeekBean.get(i).getId()]).append("  ");
-                count++;
+        int count = 0;
+        if (dataWeekBean != null && dataWeekBean.size() > 0) {
+            for (int i = 0; i < dataWeekBean.size(); i++) {
+                if (dataWeekBean.get(i).isCheckStart()) {
+                    strWeek.append(Constant.selectedWeekString[dataWeekBean.get(i).getId()]).append("  ");
+                    count++;
+                }
+            }
+            if (count == 7) {
+                tvWeek.setText("Every day");
+            } else {
+                tvWeek.setText(strWeek.toString());
             }
         }
-        if(count==7){
-            tvWeek.setText("Every day");
-        }else {
-            tvWeek.setText(strWeek.toString());
+
+        if (dataMusicBean != null && dataMusicBean.size() > 0) {
+            for (int i = 0; i < dataMusicBean.size(); i++) {
+                if (dataMusicBean.get(i).isCheckStart()) {
+                    ivMuisc.setBackgroundResource(Constant.SelectedMusicDrawable[dataMusicBean.get(i).getId()]);
+                }
+            }
         }
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+
     @OnClick({R.id.rl_alarm_time, R.id.rl_repeat, R.id.ll_light, R.id.ll_sound, R.id.tv_save, R.id.rl_cancel})
     public void onClick(View view) {
         switch (view.getId()) {
@@ -217,6 +261,10 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
                 showCheckColor(CheckColorAdapter.checkVoice);
                 break;
             case R.id.tv_save:
+                if (Hours == 0 && Minute == 0) {
+                    ToastUtils.showShortToast("Alarm time can not be empty");
+                    break;
+                }
                 switch (postion) {
                     case 1:
                         setAlarmBean();
@@ -234,30 +282,26 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void setAlarmBean() {
 
         if (Hours == 0 && Minute == 0) {
-            ToastUtils.showShortToast("请先设置时间");
-        } else if (checkWeek.toString().equals("10000000")) {
-            ToastUtils.showShortToast("请先设置星期");
-        } else if (rgb[0] == -1 && rgb[1] == -1 && rgb[2] == -1 && rgb[3] == -1) {
-            ToastUtils.showShortToast("请先设置颜色");
-        } else if (music <= 0) {
-            ToastUtils.showShortToast("请先设置音乐");
+            ToastUtils.showShortToast("Alarm time can not be empty");
+
         } else {
 
-            if (alarmSettingBean.isAlarmOnly()) {
+            if (swOnly.isChecked()) {
                 alarmOnly = "01";
             } else {
                 alarmOnly = "02";
             }
 
-            if(alarmSettingBean.isTurnOff()){
+            if (swTurnOff.isChecked()) {
                 isOff = "00";
-            }else {
-                isOff ="aa";
+            } else {
+                isOff = "aa";
             }
+
+            checkWeek.setCharAt(0, '1');
 
             alarmSettingBean.setTurnOff(swTurnOff.isChecked());
             alarmSettingBean.setTurnOn(swTurnOn.isChecked());
@@ -272,8 +316,7 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
             alarmSettingBean.setColorBean(dataColorBean);
             alarmSettingBean.setMuiscBean(dataMusicBean);
 
-
-            int i = Integer.parseUnsignedInt(alarmSettingBean.getWeek().toString(), 2);
+            int i = parseUnsignedInt(alarmSettingBean.getWeek().toString(), 2);
             String wk = addZeroForNum(Integer.toHexString(i), 2);
             String music = addZeroForNum(Integer.toHexString(alarmSettingBean.getMusic()), 2);
             String Hours = addZeroForNum(Integer.toHexString(alarmSettingBean.getHours()), 2);
@@ -287,28 +330,57 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
             switch (postion) {
                 case 1:
                     byteDate = "05" + "aa" + wk + music + Hours + Minutes + rgb + alarmOnly + isOff;
-                    if(PreferUtil.getInstance().getIsAlarmOff1()==-1){
-                        PreferUtil.getInstance().setIsAlarmOff1(1);
-                    }
-
+                    PreferUtil.getInstance().setIsAlarmOff1(1);
                     break;
                 case 2:
                     byteDate = "06" + "aa" + wk + music + Hours + Minutes + rgb + alarmOnly + isOff;
-                    if(PreferUtil.getInstance().getIsAlarmOff2()==-1){
-                        PreferUtil.getInstance().setIsAlarmOff2(1);
-                    }
+                    PreferUtil.getInstance().setIsAlarmOff2(1);
                     break;
                 case 3:
                     byteDate = "07" + "aa" + wk + music + Hours + Minutes + rgb + alarmOnly + isOff;
-                    if(PreferUtil.getInstance().getIsAlarmOff3()==-1){
-                        PreferUtil.getInstance().setIsAlarmOff3(1);
-                    }
+                    PreferUtil.getInstance().setIsAlarmOff3(1);
                     break;
             }
             write(stringToBytes(byteDate));
             finish();
         }
     }
+
+    public static int parseUnsignedInt(String s, int radix)
+            throws NumberFormatException {
+        if (s == null) {
+            throw new NumberFormatException("null");
+        }
+
+        int len = s.length();
+        if (len > 0) {
+            char firstChar = s.charAt(0);
+            if (firstChar == '-') {
+                throw new
+                        NumberFormatException(String.format("Illegal leading minus sign " +
+                        "on unsigned string %s.", s));
+            } else {
+                if (len <= 5 || // Integer.MAX_VALUE in Character.MAX_RADIX is 6 digits
+                        (radix == 10 && len <= 9)) { // Integer.MAX_VALUE in base 10 is 10 digits
+                    return parseInt(s, radix);
+                } else {
+                    long ell = Long.parseLong(s, radix);
+                    if ((ell & 0xffff_ffff_0000_0000L) == 0) {
+                        return (int) ell;
+                    } else {
+                        throw new
+                                NumberFormatException(String.format("String value %s exceeds " +
+                                "range of unsigned int.", s));
+                    }
+                }
+            }
+        } else {
+            throw new
+                    NumberFormatException(String.format("Illegal leading minus sign " +
+                    "on unsigned string %s.", s));
+        }
+    }
+
 
     private void showCheckWeek() {
         hideDialog();
@@ -330,7 +402,7 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
             @Override
             public void onClick(View v) {
                 final StringBuffer strWeek = new StringBuffer();
-                int count =0;
+                int count = 0;
                 for (int i = 0; i < dataWeekBean.size(); i++) {
                     if (dataWeekBean.get(i).isCheckStart()) {
                         checkWeek.setCharAt(i + 1, '1');
@@ -341,9 +413,9 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
                     }
                     adapter.notifyDataSetChanged();
                 }
-                if(count==7){
+                if (count == 7) {
                     tvWeek.setText("Every day");
-                }else {
+                } else {
                     tvWeek.setText(strWeek.toString());
                 }
                 hideDialog();
@@ -398,6 +470,7 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
         View view = View.inflate(BaseApplication.getContext(), R.layout.dialog_check_timer, null);
         Button btnCancel = view.findViewById(R.id.btn_cancel);
         Button btnOk = view.findViewById(R.id.btn_ok);
+        btnOk.setText("DONE");
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -412,6 +485,7 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
             }
         });
         CustomNumberPicker npHours = (CustomNumberPicker) view.findViewById(R.id.np_hours);
+        npHours.setFormatter(this);
         npHours.setMinValue(0);
         npHours.setMaxValue(23);
         npHours.setValue(alarmSettingBean.getHours());
@@ -424,7 +498,7 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
                 Hours = newVal;
             }
         });
-
+        npMinute.setFormatter(this);
         npMinute.setMinValue(0);
         npMinute.setMaxValue(59);
         npMinute.setValue(alarmSettingBean.getMinutes());
@@ -454,7 +528,7 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
         View view = View.inflate(BaseApplication.getContext(), R.layout.dialog_check_color, null);
         RecyclerView rvCheckColor = view.findViewById(R.id.rv_check_color);
         rvCheckColor.setLayoutManager(new GridLayoutManager(AlarmSettingActivity.this, 3));
-        TextView tvTitle  = view.findViewById(R.id.tv_title);
+        TextView tvTitle = view.findViewById(R.id.tv_title);
         if (type == CheckColorAdapter.checkColor) {
             tvTitle.setText("Select a Color");
             dataColorBean = alarmSettingBean.getColorBean();
@@ -488,8 +562,22 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
             @Override
             public void onClick(View v) {
                 if (CheckColorAdapter.getType() == CheckColorAdapter.checkColor) {
+                    for (int i = 0; i < dataColorBean.size(); i++) {
+                        if (dataColorBean.get(i).isCheckStart()) {
+                            if (i == dataColorBean.size() - 1) {
+                                rgb = Constant.wRGB[dataColorBean.get(i - 2).getId()];
+                            } else {
+                                rgb = Constant.wRGB[dataColorBean.get(i).getId()];
+                            }
+                        }
+                    }
                     hideDialog();
                 } else if (CheckColorAdapter.getType() == CheckColorAdapter.checkVoice) {
+                    for (int i = 0; i < dataMusicBean.size(); i++) {
+                        if (dataMusicBean.get(i).isCheckStart()) {
+                            music = Constant.selectedAlarmMusic[dataMusicBean.get(i).getId()];
+                        }
+                    }
                     hideDialog();
                 }
             }
@@ -543,7 +631,6 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
                 for (int i = 0; i < dataColorBean.size(); i++) {
                     if (item.getId() == dataColorBean.get(i).getId()) {
                         dataColorBean.get(i).setCheckStart(true);
-                        rgb = Constant.wRGB[dataColorBean.get(i).getId()];
                         rlHalfCircle.setBackgroundResource(Constant.halfCircle[dataColorBean.get(i).getId()]);
                     } else {
                         dataColorBean.get(i).setCheckStart(false);
@@ -553,8 +640,7 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
             for (int i = 0; i < dataMusicBean.size(); i++) {
                 if (item.getId() == dataMusicBean.get(i).getId()) {
                     dataMusicBean.get(i).setCheckStart(true);
-                    music = Constant.selectedVoiceMusic[dataMusicBean.get(i).getId()];
-                    ivMuisc.setBackgroundResource(Constant.unSelectedVoiceDrawable[dataMusicBean.get(i).getId()]);
+                    ivMuisc.setBackgroundResource(Constant.SelectedMusicDrawable[dataMusicBean.get(i).getId()]);
                 } else {
                     dataMusicBean.get(i).setCheckStart(false);
                 }
@@ -608,5 +694,18 @@ public class AlarmSettingActivity extends BaseActivity implements CheckPepeatAda
 
     }
 
+    @Override
+    public String format(int value) {
+        String tmpStr = String.valueOf(value);
+        if (value < 10) {
+            tmpStr = "0" + tmpStr;
+        }
+        return tmpStr;
+    }
 
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+
+    }
 }

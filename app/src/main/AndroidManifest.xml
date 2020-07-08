@@ -19,7 +19,6 @@
     <uses-permission android:name="android.permission.read_logs" />
 
 
-
     <!-- 调用硬件相机权限 -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FLASHLIGHT" />
@@ -40,6 +39,12 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
 
+    <uses-permission-sdk-23 android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission-sdk-23 android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
+    <meta-data android:name="android.max_aspect" android:value="2.4" />
+
+
     <application
         android:name=".base.BaseApplication"
         android:icon="@drawable/app_logo"
@@ -55,7 +60,6 @@
             </intent-filter>
         </activity>
 
-
         <activity
             android:name=".ui.MainActivity"
             android:theme="@style/AppTheme" />
@@ -63,7 +67,9 @@
 
         <activity
             android:name=".ui.AlarmSettingActivity"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan"
+            android:configChanges="keyboardHidden|orientation|screenSize"/>
         <activity
             android:name=".ui.ProgramsActivity"
             android:theme="@style/AppTheme" />
